@@ -14,6 +14,8 @@ using CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers;
 
 namespace CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers
 {
+    // All these Use Cases are allowed to the Singed In Users
+    // There for Authorize Attribute at the level of Controller Class
     [Authorize]
     public class ManageController : Controller
     {

@@ -171,6 +171,7 @@
     <Compile Include="App_Start\ExtendedRazorViewEngine.cs" />
     <Compile Include="App_Start\CustomViewEngine .cs" />
     <Compile Include="BC\AccessControl\Account\AccountAreaRegistration.cs" />
+    <Compile Include="BC\AccessControl\Account\Domain\Models\ApplicationRole.cs" />
     <Compile Include="BC\AccessControl\Manage\ManageAreaRegistration.cs" />
     <Compile Include="BC\AccessControl\Account\Domain\Models\ApplicationUser.cs" />
     <Compile Include="BC\AccessControl\Account\Domain\Persistence\UOW\AccountDbContext.cs" />
@@ -206,6 +207,10 @@
     <Compile Include="Common\Migrations\201909161506369_InitialModel.cs" />
     <Compile Include="Common\Migrations\201909161506369_InitialModel.Designer.cs">
       <DependentUpon>201909161506369_InitialModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\Migrations\201909211548509_AddColumntToApplicationUser.cs" />
+    <Compile Include="Common\Migrations\201909211548509_AddColumntToApplicationUser.Designer.cs">
+      <DependentUpon>201909211548509_AddColumntToApplicationUser.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\Migrations\Configuration.cs" />
     <Compile Include="Common\UOW\ApplicationDbContext.cs" />
@@ -345,6 +350,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Common\Migrations\201909161506369_InitialModel.resx">
       <DependentUpon>201909161506369_InitialModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Common\Migrations\201909211548509_AddColumntToApplicationUser.resx">
+      <DependentUpon>201909211548509_AddColumntToApplicationUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

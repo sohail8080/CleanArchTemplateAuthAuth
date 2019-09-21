@@ -10,12 +10,15 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using CleanArchTemplate.BC.AccessControl.Account.Presentation.ViewModels;
 using CleanArchTemplate.BC.AccessControl.Account.Domain.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
+using CleanArchTemplate.Common.UOW;
 
 namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        // Two App. Service used for Account Management
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -23,6 +26,7 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
         {
         }
 
+        // Based on the Configuration, both Services are provided by DI/IOC
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
         {
             UserManager = userManager;
@@ -150,16 +154,44 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            // Get Data as View Model from View, Validate ViewModel
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                // Creat the Domain Object
+                
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    DrivingLicense = model.DrivingLicense,// New Properties
+                    Phone = model.Phone // New Properties
+                };
+
+                // pass the Domain Object to the Service UserManager
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+
+                    // Temp code to Create User with Role, Role, UserRole
                     
-                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+                    //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+                    //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+                    //await roleManager.CreateAsync(new IdentityRole("CanManageMovies")); // Create Role in DB
+                    //await UserManager.AddToRoleAsync(user.Id, "CanManageMovies"); // Add UserRole in DB
+                                       
+
+                    // After Registration we are automatically Signed In. If you do not want
+                    // Immediate Sign In, but need Email Confirmation First, comment below line
+                    // and uncomment following 3 lines.
+                    // Following AS Signin the User after makeing enttry to DB
+                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+
+                    // For more information on how to enable account confirmation and 
+                    //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
+
+                    // While registering, if you need Email Confirmation, uncomment
+                    // following 3 lines and comment the above line.
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
