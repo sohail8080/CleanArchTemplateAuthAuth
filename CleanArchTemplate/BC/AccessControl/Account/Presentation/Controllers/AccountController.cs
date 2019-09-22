@@ -26,13 +26,16 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
         {
         }
 
-        // Based on the Configuration, both Services are provided by DI/IOC
+        // Based on the Configuration, both Services will be provided by DI/IOC
+        // Currently they are coded in the controller.
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
         {
             UserManager = userManager;
             SignInManager = signInManager;
+
         }
 
+        // Controller is not getting these properties by DI/IOC
         public ApplicationSignInManager SignInManager
         {
             get
@@ -45,6 +48,7 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
             }
         }
 
+        // Controller is not getting these properties by DI/IOC
         public ApplicationUserManager UserManager
         {
             get
@@ -56,6 +60,10 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
                 _userManager = value;
             }
         }
+
+
+        ////////////////Below Controller Methods//////////////////////
+
 
         //
         // GET: /Account/Login
@@ -83,7 +91,7 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
-                case SignInStatus.Success:
+                case SignInStatus.Success: 
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -153,18 +161,17 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
-        {
+        {            
             // Get Data as View Model from View, Validate ViewModel
             if (ModelState.IsValid)
             {
-                // Creat the Domain Object
-                
+                // Creat the Domain Object                
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
                     Email = model.Email,
                     DrivingLicense = model.DrivingLicense,// New Properties
-                    Phone = model.Phone // New Properties
+                    Phone = model.Phone, // New Properties
                 };
 
                 // pass the Domain Object to the Service UserManager
@@ -172,20 +179,15 @@ namespace CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers
                 if (result.Succeeded)
                 {
 
-                    // Temp code to Create User with Role, Role, UserRole
-                    
-                    //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-                    //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-                    //await roleManager.CreateAsync(new IdentityRole("CanManageMovies")); // Create Role in DB
-                    //await UserManager.AddToRoleAsync(user.Id, "CanManageMovies"); // Add UserRole in DB
-                                       
+                    // Ever newly singned in User is assigned the Role of Customer
+                    await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
 
                     // After Registration we are automatically Signed In. If you do not want
                     // Immediate Sign In, but need Email Confirmation First, comment below line
                     // and uncomment following 3 lines.
                     // Following AS Signin the User after makeing enttry to DB
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-
+                     
                     // For more information on how to enable account confirmation and 
                     //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link

@@ -26,12 +26,15 @@ namespace CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers
         {
         }
 
+        // Based on the Configuration, both Services will be provided by DI/IOC
+        // Currently they are coded in the controller.
         public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
+        // Controller is not getting these properties by DI/IOC
         public ApplicationSignInManager SignInManager
         {
             get
@@ -44,6 +47,7 @@ namespace CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers
             }
         }
 
+        // Controller is not getting these properties by DI/IOC
         public ApplicationUserManager UserManager
         {
             get
@@ -55,6 +59,9 @@ namespace CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers
                 _userManager = value;
             }
         }
+
+
+        ////////////////Below Controller Methods//////////////////////
 
         //
         // GET: /Manage/Index

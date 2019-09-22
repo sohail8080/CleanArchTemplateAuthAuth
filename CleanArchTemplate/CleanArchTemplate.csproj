@@ -170,6 +170,10 @@
   <ItemGroup>
     <Compile Include="App_Start\ExtendedRazorViewEngine.cs" />
     <Compile Include="App_Start\CustomViewEngine .cs" />
+    <Compile Include="App_Start\Identity\ApplicationSignInManager.cs" />
+    <Compile Include="App_Start\Identity\ApplicationUserManager.cs" />
+    <Compile Include="App_Start\Identity\EmailService.cs" />
+    <Compile Include="App_Start\Identity\SmsService.cs" />
     <Compile Include="BC\AccessControl\Account\AccountAreaRegistration.cs" />
     <Compile Include="BC\AccessControl\Account\Domain\Models\ApplicationRole.cs" />
     <Compile Include="BC\AccessControl\Manage\ManageAreaRegistration.cs" />
@@ -185,7 +189,10 @@
     <Compile Include="BC\AccessControl\Account\Presentation\ViewModels\SampleViewModel.cs" />
     <Compile Include="BC\AccessControl\Account\Presentation\ViewModels\ExternalLoginConfirmationViewModel.cs" />
     <Compile Include="BC\AccessControl\Manage\Domain\Persistence\UOW\ManageDbContext.cs" />
+    <Compile Include="BC\AccessControl\Manage\Presentation\Controllers\RolesController.cs" />
+    <Compile Include="BC\AccessControl\Manage\Presentation\Controllers\UsersController.cs" />
     <Compile Include="BC\AccessControl\Manage\Presentation\ViewModels\ConfigureTwoFactorViewModel.cs" />
+    <Compile Include="BC\AccessControl\Manage\Presentation\ViewModels\CreateRoleViewModel.cs" />
     <Compile Include="BC\AccessControl\Manage\Presentation\ViewModels\VerifyPhoneNumberViewModel.cs" />
     <Compile Include="BC\AccessControl\Manage\Presentation\ViewModels\AddPhoneNumberViewModel.cs" />
     <Compile Include="BC\AccessControl\Manage\Presentation\ViewModels\ChangePasswordViewModel.cs" />
@@ -204,6 +211,7 @@
     <Compile Include="BC\AccessControl\Account\Presentation\Controllers\AccountController.cs" />
     <Compile Include="BC\Home\Presentation\Controllers\HomeController.cs" />
     <Compile Include="BC\AccessControl\Manage\Presentation\Controllers\ManageController.cs" />
+    <Compile Include="Common\BaseClasses\Presentation\BaseController.cs" />
     <Compile Include="Common\Migrations\201909161506369_InitialModel.cs" />
     <Compile Include="Common\Migrations\201909161506369_InitialModel.Designer.cs">
       <DependentUpon>201909161506369_InitialModel.cs</DependentUpon>
@@ -239,6 +247,10 @@
     <Content Include="BC\Home\Presentation\Views\_ViewStart.cshtml" />
     <Content Include="BC\AccessControl\Account\Presentation\Views\_ViewStart.cshtml" />
     <Content Include="BC\AccessControl\Manage\Presentation\Views\_ViewStart.cshtml" />
+    <Content Include="BC\AccessControl\Manage\Presentation\Views\Roles\Create.cshtml" />
+    <Content Include="BC\AccessControl\Manage\Presentation\Views\Roles\Index.cshtml" />
+    <Content Include="BC\AccessControl\Manage\Presentation\Views\Users\Index.cshtml" />
+    <Content Include="Common\Views\_NavBar.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -328,10 +340,10 @@
     <Folder Include="BC\Home\Presentation\Views\Shared\" />
     <Folder Include="Common\BaseClasses\Application\" />
     <Folder Include="Common\BaseClasses\Domain\" />
-    <Folder Include="Common\BaseClasses\Presentation\" />
     <Folder Include="Common\Exceptions\" />
     <Folder Include="Common\Helpers\" />
     <Folder Include="Common\Utilities\" />
+    <Folder Include="Common\Views\Base\" />
     <Folder Include="Common\Views\Default\" />
   </ItemGroup>
   <ItemGroup>
