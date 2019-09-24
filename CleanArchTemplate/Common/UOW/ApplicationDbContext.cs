@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using CleanArchTemplate.BC.AccessControl.Account.Domain.Models;
+using CleanArchTemplate.BC.AccessControl.Domain;
 
 namespace CleanArchTemplate.Common.UOW
 {

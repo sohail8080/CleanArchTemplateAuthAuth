@@ -19,12 +19,12 @@ namespace CleanArchTemplate.Areas.Home
                 name: "Home_default",
                 url: "Home/{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
-                namespaces: new[] { "CleanArchTemplate.BC.Home.Presentation.Controllers" }
+                namespaces: new[] { "CleanArchTemplate.BC.Home.Controllers" }
 
                 //"Home_default",
                 //"Home/{controller}/{action}/{id}",
                 //new { action = "Index", id = UrlParameter.Optional },
-                //new[] { "CleanArchTemplate.BC.Home.Presentation.Controllers" }
+                //new[] { "CleanArchTemplate.BC.Home.Controllers" }
             );
         }
     }

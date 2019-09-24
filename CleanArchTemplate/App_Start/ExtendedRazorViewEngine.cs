@@ -11,11 +11,17 @@ namespace CleanArchTemplate
         public ExtendedRazorViewEngine()
         {
             var viewLocations = new[] {
-            
-            "~/BC/Home/Presentation/Views/{1}/{0}.cshtml",
-            "~/BC/AccessControl/Account/Presentation/Views/{1}/{0}.cshtml",
-            "~/BC/AccessControl/Manage/Presentation/Views/{1}/{0}.cshtml",
+
+            "~/BC/{1}/Views/{0}.cshtml",
+            "~/BC/{1}/Views/Shared/{0}.cshtml",
+            "~/BC/AccessControl/Views/{1}/{0}.cshtml",
+             "~/BC/AccessControl/Views/Shared/{0}.cshtml",
              "~/Common/Views/{0}.cshtml"
+
+            //"~/BC/Home/Presentation/Views/{1}/{0}.cshtml",
+            //"~/BC/AccessControl/Account/Presentation/Views/{1}/{0}.cshtml",
+            //"~/BC/AccessControl/Manage/Presentation/Views/{1}/{0}.cshtml",
+            // "~/Common/Views/{0}.cshtml"
 
             //"~/Views/{1}/{0}.ascx",
             //"~/Views/Shared/{0}.aspx",

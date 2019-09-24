@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
-namespace CleanArchTemplate.BC.Home.Domain.Models
+namespace CleanArchTemplate.BC.Home.Domain
 {
     public class Genre
     {

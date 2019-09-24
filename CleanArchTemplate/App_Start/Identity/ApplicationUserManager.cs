@@ -10,7 +10,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using CleanArchTemplate.BC.AccessControl.Account.Domain.Models;
+using CleanArchTemplate.BC.AccessControl.Domain;
 using CleanArchTemplate.Common.UOW;
 
 namespace CleanArchTemplate
