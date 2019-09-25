@@ -14,6 +14,15 @@ namespace CleanArchTemplate.AccessControl
 
         public override void RegisterArea(AreaRegistrationContext context)
         {
+
+            context.MapRoute(
+                name: "AccessControl_admin",
+                url: "AccessControl/Admin/{controller}/{action}/{id}",
+                defaults: new { controller = "Users", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "CleanArchTemplate.AccessControl.Controllers" }
+            );
+
+
             context.MapRoute(
                 //"AccessControl_default",
                 //"AccessControl/{controller}/{action}/{id}",
