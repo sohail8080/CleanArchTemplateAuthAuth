@@ -22,7 +22,7 @@ namespace CleanArchTemplate
             //    name: "Account_default",
             //    url: "Account/{controller}/{action}/{id}",
             //    defaults: new { controller = "Account", action = "Index", id = UrlParameter.Optional },
-            //    namespaces: new[] { "CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers" }
+            //    namespaces: new[] { "CleanArchTemplate.AccessControl.Account.Presentation.Controllers" }
             //);
 
 
@@ -30,7 +30,7 @@ namespace CleanArchTemplate
             //    name: "Manage_default",
             //    url: "Manage/{controller}/{action}/{id}",
             //    defaults: new { controller = "Manage", action = "Index", id = UrlParameter.Optional },
-            //    namespaces: new[] { "CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers" }
+            //    namespaces: new[] { "CleanArchTemplate.AccessControl.Manage.Presentation.Controllers" }
             //);
 
 
@@ -38,14 +38,14 @@ namespace CleanArchTemplate
             //    name: "Home_default",
             //    url: "Home/{controller}/{action}/{id}",
             //    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
-            //    namespaces: new[] { "CleanArchTemplate.BC.Home.Presentation.Controllers" }
+            //    namespaces: new[] { "CleanArchTemplate.Home.Presentation.Controllers" }
             //);
 
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
-                namespaces: new[] { "CleanArchTemplate.BC.Home.Presentation.Controllers", "CleanArchTemplate.BC.AccessControl.Account.Presentation.Controllers", "CleanArchTemplate.BC.AccessControl.Manage.Presentation.Controllers" }
+                namespaces: new[] { "CleanArchTemplate.Home.Presentation.Controllers", "CleanArchTemplate.AccessControl.Account.Presentation.Controllers", "CleanArchTemplate.AccessControl.Manage.Presentation.Controllers" }
             );
         }
     }

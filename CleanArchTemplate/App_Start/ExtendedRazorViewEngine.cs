@@ -12,11 +12,11 @@ namespace CleanArchTemplate
         {
             var viewLocations = new[] {
 
-            "~/BC/{1}/Views/{0}.cshtml",
-            "~/BC/{1}/Views/Shared/{0}.cshtml",
-            "~/BC/AccessControl/Views/{1}/{0}.cshtml",
-             "~/BC/AccessControl/Views/Shared/{0}.cshtml",
-             "~/Common/Views/{0}.cshtml"
+            "~/MODULE_{1}/Views/{0}.cshtml",
+            "~/MODULE_{1}/Views/Shared/{0}.cshtml",
+            "~/MODULE_AccessControl/Views/{1}/{0}.cshtml",
+            "~/MODULE_AccessControl/Views/Shared/{0}.cshtml",
+            "~/Common/Views/{0}.cshtml"
 
             //"~/BC/Home/Presentation/Views/{1}/{0}.cshtml",
             //"~/BC/AccessControl/Account/Presentation/Views/{1}/{0}.cshtml",

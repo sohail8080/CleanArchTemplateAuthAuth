@@ -6,7 +6,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using CleanArchTemplate.Common.UOW;
-using CleanArchTemplate.BC.AccessControl.Domain;
+using CleanArchTemplate.AccessControl.Domain;
 
 namespace CleanArchTemplate
 {
