@@ -175,6 +175,7 @@
     <Compile Include="App_Start\Identity\EmailService.cs" />
     <Compile Include="App_Start\Identity\SmsService.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\AdminController.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationRole.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationUser.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\UOW\AccessControlBoundedContext.cs" />
@@ -248,6 +249,8 @@
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Create.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Index.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Index.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Index.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Roles\Details.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

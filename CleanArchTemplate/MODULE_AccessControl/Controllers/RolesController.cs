@@ -10,11 +10,12 @@ using CleanArchTemplate.Common.UOW;
 using System.Threading.Tasks;
 using CleanArchTemplate.AccessControl.ViewModels;
 using Microsoft.AspNet.Identity.Owin;
+using CleanArchTemplate.Common.BaseClasses.Presentation;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class RolesController : Controller
+    public class RolesController : BaseController
     {
 
         // Two App. Service used for Account Management
@@ -64,7 +65,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
         ////////////////Below Controller Methods//////////////////////
-
       
         public ActionResult Index()
         {
@@ -81,12 +81,20 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         }
 
-       
+        public ActionResult Details(string id)
+        {
+            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+
+            var role = roleManager.FindById(id);
+
+            return View("Details", role);
+        }
+
         public ActionResult Create()
         {            
             return View("Create");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]       
@@ -114,7 +122,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return RedirectToAction("Index", "Roles", new { area = "AccessControl" });
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create2(IdentityRole Role)
@@ -123,6 +130,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //context.SaveChanges();
             return RedirectToAction("Index", "Roles", new { area = "AccessControl" });
         }
+
 
     }
 }

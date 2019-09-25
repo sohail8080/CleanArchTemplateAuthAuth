@@ -1,36 +1,69 @@
 ﻿@model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
 @{
     ViewBag.Title = "Add Role";
-    Layout = "~/Common/Views/_Layout.cshtml";
+    //Layout = "~/Common/Views/_Layout.cshtml";
+    bool isAdminUser = false;
+    if (ViewBag.isAdminUser != null)
+    { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
 }
-<table style=" background-color:#FFFFFF; border: dashed 3px #6D7B8D; padding: 5px;width: 99%;table-layout:fixed;" cellpadding="6" cellspacing="6">
-    <tr style="height: 30px; background-color:#336699 ; color:#FFFFFF ;border: solid 1px #659EC7;">
-        <td align="center" colspan="2">
-            <h2> Create User Roles</h2>
-        </td>
 
-    </tr>
+<h2>Add New Roles</h2>
 
-    <tr>
-        <td>
-            <table id="tbrole" style="width:100%; border:dotted 1px; background-color:gainsboro; padding-left:10px;">
+@*Just for demo, how UI can be customized based on roles*@
 
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td style="width:100%; border:dotted 1px;">
-                            @item.Name
-                        </td>
-                    </tr>}
-            </table>
-        </td>
-        <td align="right" style="color:#FFFFFF;padding-right:10;">
+@if (isAdminUser)
+{
+    <p>
+        @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
+    </p>
+}
+<table id="roles" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Roles</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
 
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>  @role.Name</td>
+                <td> @Html.ActionLink(role.Name, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" })  </td>
+            </tr>
 
-            <h3>   @Html.ActionLink("Click to Create New Role", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink" }) </h3>
-        </td>
-    </tr>
+        }
+
+    </tbody>
 </table>
+
+
+
+
+
+@*<table style=" background-color:#FFFFFF; border: dashed 3px #6D7B8D; padding: 5px;width: 99%;table-layout:fixed;" cellpadding="6" cellspacing="6">
+        <tr style="height: 30px; background-color:#336699 ; color:#FFFFFF ;border: solid 1px #659EC7;">
+            <td align="center" colspan="2">
+                <h2> Create User Roles</h2>
+            </td>
+
+        </tr>
+
+        <tr>
+            <td>
+                <table id="tbrole" style="width:100%; border:dotted 1px; background-color:gainsboro; padding-left:10px;">
+
+
+                </table>
+            </td>
+            <td align="right" style="color:#FFFFFF;padding-right:10;">
+
+
+                <h3>    </h3>
+            </td>
+        </tr>
+    </table>*@
 
 
 

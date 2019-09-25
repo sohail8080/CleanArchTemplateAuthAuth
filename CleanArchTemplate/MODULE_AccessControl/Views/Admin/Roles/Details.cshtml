@@ -1,0 +1,19 @@
+﻿@model Microsoft.AspNet.Identity.EntityFramework.IdentityRole
+
+@{
+    ViewBag.Title = "Role Details";
+    //Layout = "~/Common/Views/_Layout.cshtml";
+}
+
+
+<h2>@ViewBag.Title</h2>
+
+<h4>Details of a Role added to the application.</h4>
+
+@if (Model != null)
+{<p> @Model.Name </p>}
+else
+{ <p>Role Not Found</p>}
+
+@Html.ActionLink("Back", "Index", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
+
