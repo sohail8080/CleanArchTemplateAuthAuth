@@ -10,12 +10,18 @@ using CleanArchTemplate.Common.UOW;
 using System.Threading.Tasks;
 using CleanArchTemplate.AccessControl.ViewModels;
 using Microsoft.AspNet.Identity.Owin;
-using CleanArchTemplate.Common.BaseClasses.Presentation;
+using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
+        public ActionResult Index()
+        {
+            Set_Flag_For_Admin();
+            return View("Index");
+        }
+
     }
 }

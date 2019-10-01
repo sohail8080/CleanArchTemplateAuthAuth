@@ -10,7 +10,7 @@ using CleanArchTemplate.Common.UOW;
 using System.Threading.Tasks;
 using CleanArchTemplate.AccessControl.ViewModels;
 using Microsoft.AspNet.Identity.Owin;
-using CleanArchTemplate.Common.BaseClasses.Presentation;
+using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
@@ -74,11 +74,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
             var roles = roleManager.Roles.ToList();
 
+            Set_Flag_For_Admin();
+            return View("Index", roles);
+
             // Following we get All Roles by EF Repo
             // Both Requires ApplicationDbContext
             //var roles = context.Roles.ToList();
-            return View("Index", roles);
-
         }
 
         public ActionResult Details(string id)

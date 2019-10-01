@@ -10,7 +10,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using CleanArchTemplate.Common.UOW;
 using CleanArchTemplate.AccessControl.Domain;
 using Microsoft.AspNet.Identity.Owin;
-using CleanArchTemplate.Common.BaseClasses.Presentation;
+using CleanArchTemplate.Common.BaseClasses;
+using System.Data.Entity;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
@@ -66,9 +67,16 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // GET: Users       
         public ActionResult Index()
 		{
+            var users = new ApplicationDbContext().Users.Include(u => u.Roles).ToList();
             Set_Flag_For_Admin();
-			return View("Index");
+			return View("Index", users);
 		}
+
+        public ActionResult Details(string id)
+        {            
+            var user = new ApplicationDbContext().Users.Where(u => u.Id == id).FirstOrDefault();
+            return View("Details", user);
+        }
 
 
 	}

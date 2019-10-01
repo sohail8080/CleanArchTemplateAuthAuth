@@ -1,0 +1,18 @@
+﻿@model CleanArchTemplate.AccessControl.Domain.ApplicationUser
+
+@{
+    ViewBag.Title = "Role Details";    
+}
+
+
+<h2>@ViewBag.Title</h2>
+
+<h4>Details of a Role added to the application.</h4>
+
+@if (Model.UserName != null)
+{<p> @Model.UserName </p>}
+else
+{ <p>User Not Found</p>}
+
+@Html.ActionLink("Back", "Index", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listUserLink", @class = "btn btn-primary" })
+

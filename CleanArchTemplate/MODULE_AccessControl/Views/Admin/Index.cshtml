@@ -1,6 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Users List";
-    //Layout = "~/Common/Views/_Layout.cshtml";
+    ViewBag.Title = "Administration Home Page";    
     bool isAdminUser = false;
     if (ViewBag.isAdminUser != null)
     { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
@@ -8,14 +7,25 @@
 
 @if (isAdminUser)
 {
-    <h1>Welcome Admin. Now you can create user Role.</h1>
-    <h3>
-        <li>@Html.ActionLink("Manage Roles", "Index", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink" })</li>
-        <li>@Html.ActionLink("Manage Users", "Index", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink" })</li>
-    </h3>
+    <div class="form-group">
+        <div class="col-md-12">
+            <h2>Welcome to Administration Panel. You can do following administration tasks.</h2>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-md-2">
+            @Html.ActionLink("Manage Roles", "Index", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink", @class = "btn btn-primary" })
+        </div>
+        <div class="col-md-10">
+            @Html.ActionLink("Manage Users", "Index", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink", @class = "btn btn-primary" })
+        </div>
+    </div>
+
 }
 else
 {
-    <h2>  Welcome <strong>@ViewBag.Name</strong> :) .We will add user module soon </h2>
+    <h2>  <strong>@ViewBag.Name</strong> , You do not have sufficient privileges. </h2>
 }
 

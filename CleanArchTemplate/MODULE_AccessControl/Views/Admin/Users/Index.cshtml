@@ -1,21 +1,63 @@
-﻿@{
-    ViewBag.Title = "Users List";
-    //Layout = "~/Common/Views/_Layout.cshtml";
+﻿@using CleanArchTemplate.Common.UOW
+
+@model IEnumerable<CleanArchTemplate.AccessControl.Domain.ApplicationUser>
+@{
+    ViewBag.Title = "Add Role";
     bool isAdminUser = false;
     if (ViewBag.isAdminUser != null)
     { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
 }
 
+<h2>Add New Users</h2>
+
+@*Just for demo, how UI can be customized based on roles*@
+
 @if (isAdminUser)
 {
-    <h1>Welcome Admin. Now you can create user Role.</h1>
-    <h3>
-        <li>@Html.ActionLink("Manage Roles", "Index", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink" })</li>
-        <li>@Html.ActionLink("Manage Users", "Index", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink" })</li>
-    </h3>
+    <p>
+        @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
+    </p>
 }
-else
-{
-    <h2>  Welcome <strong>@ViewBag.Name</strong> :) .We will add user module soon </h2>
-}
+<table id="roles" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Users</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>  @user.UserName</td>
+                <td>
+                    @if (user.Roles != null && user.Roles.Count >= 1)
+                    {
+                        var userRoles = user.Roles;
+                        string rolelist = string.Empty;
+                        foreach (var userRole in userRoles)
+                        {
+                            var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRole.RoleId);
+                            rolelist = rolelist + role.Name + ", ";
+                        }
+
+                        @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
+                    }
+
+                </td>
+            </tr>
+
+        }
+
+    </tbody>
+</table>
+
+<p>
+    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+</p>
+
+
+
+
 
