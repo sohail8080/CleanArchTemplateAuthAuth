@@ -12,34 +12,34 @@
 
 @if (isAdminUser)
 {
-    <p>
-        @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
-    </p>
+<p>
+    @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
+    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+</p>
 }
 <table id="roles" class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>Roles</th>
             <th>Details</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
 
         @foreach (var role in Model)
         {
-            <tr>
-                <td>  @role.Name</td>
-                <td> @Html.ActionLink(role.Name, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
-            </tr>
+        <tr>
+            <td>  @role.Name</td>
+            <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
+            <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+        </tr>
 
         }
 
     </tbody>
 </table>
 
-<p>
-    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-</p>
 
 
 

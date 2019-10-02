@@ -179,8 +179,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 if (result.Succeeded)
                 {
 
+                    // Code to Create User with Role, Role, UserRole
+                    //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+                    //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+                    //await roleManager.CreateAsync(new IdentityRole("Admin")); // Create Role in DB
+                    //await UserManager.AddToRoleAsync(user.Id, "Admin"); // Add UserRole in DB
+
                     // Ever newly singned in User is assigned the Role of Customer
-                    await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
+                    //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
 
                     // After Registration we are automatically Signed In. If you do not want
                     // Immediate Sign In, but need Email Confirmation First, comment below line

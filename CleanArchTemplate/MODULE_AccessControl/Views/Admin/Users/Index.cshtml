@@ -14,15 +14,17 @@
 
 @if (isAdminUser)
 {
-    <p>
-        @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
-    </p>
+<p>
+    @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
+    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+</p>
 }
 <table id="roles" class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>Users</th>
             <th>Details</th>
+             <th>Delete</th>
         </tr>
     </thead>
     <tbody>
@@ -34,18 +36,20 @@
                 <td>
                     @if (user.Roles != null && user.Roles.Count >= 1)
                     {
-                        var userRoles = user.Roles;
+                        var userRoleIds = user.Roles;
                         string rolelist = string.Empty;
-                        foreach (var userRole in userRoles)
+                        foreach (var userRoleId in userRoleIds)
                         {
-                            var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRole.RoleId);
+                            var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRoleId.RoleId);
                             rolelist = rolelist + role.Name + ", ";
                         }
 
-                        @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
+                        @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })                        
                     }
-
                 </td>
+
+                <td>@Html.ActionLink("Delete", "Delete", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
+
             </tr>
 
         }
@@ -53,9 +57,6 @@
     </tbody>
 </table>
 
-<p>
-    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-</p>
 
 
 

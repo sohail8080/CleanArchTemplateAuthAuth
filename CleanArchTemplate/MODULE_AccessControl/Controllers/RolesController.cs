@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using CleanArchTemplate.AccessControl.ViewModels;
 using Microsoft.AspNet.Identity.Owin;
 using CleanArchTemplate.Common.BaseClasses;
+using System.Data.Entity;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
@@ -21,47 +22,27 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // Two App. Service used for Account Management
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-        //ApplicationDbContext context;
+        private RoleManager<IdentityRole> _roleManager;
+        ApplicationDbContext _context;
 
         public RolesController()
         {
-            //context = new ApplicationDbContext();
+            _context = new ApplicationDbContext();
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public RolesController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public RolesController(ApplicationUserManager userManager, 
+                                ApplicationSignInManager signInManager,
+                                RoleManager<IdentityRole> roleManager)
         {
-            UserManager = userManager;
-            SignInManager = signInManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
 
-        // Controller is not getting these properties by DI/IOC
-        public ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set
-            {
-                _signInManager = value;
-            }
-        }
 
-        // Controller is not getting these properties by DI/IOC
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
 
 
         ////////////////Below Controller Methods//////////////////////
@@ -70,9 +51,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             //Following we get All Roles by Role Manager
             // Both Requires ApplicationDbContext
-            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-            var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-            var roles = roleManager.Roles.ToList();
+            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+            var roles = RoleManager.Roles.ToList();
 
             Set_Flag_For_Admin();
             return View("Index", roles);
@@ -84,13 +65,35 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public ActionResult Details(string id)
         {
-            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-            var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
-            var role = roleManager.FindById(id);
+            var role = RoleManager.FindById(id);
 
             return View("Details", role);
         }
+
+
+        public ActionResult Delete(string id)
+        {
+            //var role = RoleManager.FindById(id);
+            //var result = RoleManager.Delete(role);
+
+            //var role = _context.Roles.Where(r => r.Name == "my role name").FirstOrDefault();
+            //var rold = _context.Roles.Select(r => r.Id == id);
+            var role = _context.Roles.Where(r => r.Id == id).FirstOrDefault();
+            _context.Roles.Remove(role);
+            _context.SaveChanges();
+         
+            //if (!result.Succeeded)
+            //    ModelState.AddModelError("", "Error occured while deleting role.");
+
+            var roles = RoleManager.Roles.ToList();
+
+            Set_Flag_For_Admin();
+            return View("Index", roles);            
+        }
+
 
         public ActionResult Create()
         {            
@@ -107,12 +110,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             // Create Role Method 1 by Calling RoleManager Service Asyn Method
-            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-            var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
-            if (!roleManager.RoleExists(viewModel.Name))
+            if (!RoleManager.RoleExists(viewModel.Name))
             {
-                await roleManager.CreateAsync(new IdentityRole(viewModel.Name)); // Create Role in DB
+                await RoleManager.CreateAsync(new IdentityRole(viewModel.Name)); // Create Role in DB
             }
             else
             {
@@ -127,10 +130,87 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create2(IdentityRole Role)
         {
-            //context.Roles.Add(Role);
-            //context.SaveChanges();
+            _context.Roles.Add(Role);
+            _context.SaveChanges();
             return RedirectToAction("Index", "Roles", new { area = "AccessControl" });
         }
+
+
+
+
+
+
+
+
+
+        // Controller is not getting these properties by DI/IOC
+        private ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
+             set
+            {
+                _signInManager = value;
+            }
+        }
+
+        // Controller is not getting these properties by DI/IOC
+        private ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+             set
+            {
+                _userManager = value;
+            }
+        }
+
+        // Controller is not getting these properties by DI/IOC
+        private RoleManager<IdentityRole> RoleManager
+        {
+            get
+            {                
+                return _roleManager ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+            }
+             set
+            {
+                _roleManager = value;
+            }
+        }
+
+
+        public IEnumerable<ApplicationUser> GetApplicationUsersInRole(string roleName)
+        {
+            return from role in _context.Roles
+                   where role.Name == roleName
+                   from userRoles in role.Users
+                   join user in _context.Users
+                   on userRoles.UserId equals user.Id
+                   where user.EmailConfirmed == true
+                   select user;
+        }
+
+
+        public IEnumerable<ApplicationUser> GetApplicationUsersInRole2(string roleName)
+        {
+            var users = _context.Users.Include(u => u.Roles).ToList();
+            var role = _context.Roles.FirstOrDefault(r => r.Name == roleName);
+
+            var list = from user in users
+                   where user.Roles.Any(r => r.RoleId == role.Id)
+                   select user;
+
+            return list;
+        }
+
+
+
+
+
 
 
     }

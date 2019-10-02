@@ -195,7 +195,7 @@
     <Compile Include="MODULE_AccessControl\Controllers\RolesController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersController.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ConfigureTwoFactorViewModel.cs" />
-    <Compile Include="MODULE_AccessControl\ViewModels\Manage\CreateRoleViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateRoleViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\VerifyPhoneNumberViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\AddPhoneNumberViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ChangePasswordViewModel.cs" />
@@ -254,6 +254,7 @@
     <Content Include="MODULE_AccessControl\Views\Admin\Index.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Details.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Details.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\Create.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -325,7 +326,6 @@
     <Folder Include="MODULE_AccessControl\Domain\Factories\" />
     <Folder Include="MODULE_AccessControl\Domain\Models\DataModelExtentions\" />
     <Folder Include="MODULE_AccessControl\Domain\Services\" />
-    <Folder Include="MODULE_AccessControl\ViewModels\Admin\" />
     <Folder Include="MODULE_AccessControl\Views\Shared\" />
     <Folder Include="MODULE_Home\App_Services\Commands\" />
     <Folder Include="MODULE_Home\App_Services\Interfaces\" />
