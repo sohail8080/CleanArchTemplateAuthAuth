@@ -15,7 +15,7 @@ using System.Data.Entity;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = RoleName.Admin)]
     public class RolesController : BaseController
     {
 
@@ -47,7 +47,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         ////////////////Below Controller Methods//////////////////////
       
-        public ActionResult Index()
+        public ActionResult List()
         {
             //Following we get All Roles by Role Manager
             // Both Requires ApplicationDbContext
@@ -56,7 +56,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var roles = RoleManager.Roles.ToList();
 
             Set_Flag_For_Admin();
-            return View("Index", roles);
+            return View("List", roles);
 
             // Following we get All Roles by EF Repo
             // Both Requires ApplicationDbContext
@@ -81,49 +81,88 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //var role = _context.Roles.Where(r => r.Name == "my role name").FirstOrDefault();
             //var rold = _context.Roles.Select(r => r.Id == id);
-            var role = _context.Roles.Where(r => r.Id == id).FirstOrDefault();
+            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
             _context.Roles.Remove(role);
-            _context.SaveChanges();
-         
+            var deleteResult = _context.SaveChanges();
+
+            if (deleteResult <= 0)
+                ModelState.AddModelError("", "Error occurred while deleting User");
+
             //if (!result.Succeeded)
             //    ModelState.AddModelError("", "Error occured while deleting role.");
 
-            var roles = RoleManager.Roles.ToList();
+            return RedirectToAction("List", "Roles", new { area = "AccessControl" });
 
-            Set_Flag_For_Admin();
-            return View("Index", roles);            
+            //var roles = RoleManager.Roles.ToList();
+            //Set_Flag_For_Admin();
+            //return View("List", roles);            
         }
-
 
         public ActionResult Create()
-        {            
-            return View("Create");
+        {
+            var viewModel = new RoleFormViewModel();
+            Set_Flag_For_Admin();
+            return View("RoleForm", viewModel);
         }
+
+
+        public ActionResult Edit(string id)
+        {
+            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+
+            if (role == null)
+                return HttpNotFound();
+
+            var viewModel = new RoleFormViewModel(role);
+
+            Set_Flag_For_Admin();
+            return View("RoleForm", viewModel);
+        }
+
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]       
-        public async Task<ActionResult> Create(CreateRoleViewModel viewModel)
+        public async Task<ActionResult> Save(RoleFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {
-                View("Create", viewModel);
+                return View("RoleForm", viewModel);
             }
 
-            // Create Role Method 1 by Calling RoleManager Service Asyn Method
-            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-
-            if (!RoleManager.RoleExists(viewModel.Name))
+            if(viewModel.Id == "")
             {
-                await RoleManager.CreateAsync(new IdentityRole(viewModel.Name)); // Create Role in DB
+                // Create Role Method 1 by Calling RoleManager Service Asyn Method
+                //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+                //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+
+                if (!RoleManager.RoleExists(viewModel.Name))
+                {
+                    await RoleManager.CreateAsync(new IdentityRole(viewModel.Name)); // Create Role in DB
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Role already exist.");
+                    return View("RoleForm", viewModel);
+                }
+
+                return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             }
             else
             {
-                ModelState.AddModelError("", "Role already exist.");
-                return View("Create", viewModel);
+                var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
+
+                roleInDB.Name = viewModel.Name;
+                int updateResult = _context.SaveChanges();
+
+                if (updateResult <= 0)
+                    ModelState.AddModelError("", "Error occurred while updating Role.");
+              
+                return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             }
 
-            return RedirectToAction("Index", "Roles", new { area = "AccessControl" });
+
         }
 
         [HttpPost]
@@ -132,7 +171,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             _context.Roles.Add(Role);
             _context.SaveChanges();
-            return RedirectToAction("Index", "Roles", new { area = "AccessControl" });
+            return RedirectToAction("List", "Roles", new { area = "AccessControl" });
         }
 
 

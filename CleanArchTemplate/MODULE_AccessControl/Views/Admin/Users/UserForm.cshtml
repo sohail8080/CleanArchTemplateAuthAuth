@@ -1,13 +1,13 @@
-﻿@model CleanArchTemplate.AccessControl.ViewModels.RegisterViewModel
+﻿@model CleanArchTemplate.AccessControl.ViewModels.UserFormViewModel
 @{
     /**/
 
-    ViewBag.Title = "Register";
+    ViewBag.Title = Model.Title;
 }
 
 <h2>@ViewBag.Title.</h2>
 
-@using (Html.BeginForm("Create", "Users", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("Save", "Users", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
     <h4>Create a new account.</h4>
@@ -50,10 +50,11 @@
     </div>
 
     <!--New Properties of Application User-->
-
+    @Html.HiddenFor(m => m.Id)
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-primary" value="Register" />
+            <input type="submit" class="btn btn-primary" value="Save" />
+            @Html.ActionLink("Cancel", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
         </div>
     </div>
 

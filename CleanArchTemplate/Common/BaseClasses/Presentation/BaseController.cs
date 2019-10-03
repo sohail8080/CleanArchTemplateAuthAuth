@@ -1,4 +1,5 @@
-﻿using CleanArchTemplate.Common.UOW;
+﻿using CleanArchTemplate.AccessControl.ViewModels;
+using CleanArchTemplate.Common.UOW;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -29,8 +30,8 @@ namespace CleanArchTemplate.Common.BaseClasses
                 if (userRoles == null | userRoles.Count <= 0)
                 { isAdminUser = false; }
 
-                //if (userRoles[0].ToString() == "Admin")
-                if (userRoles.Contains("Admin"))
+                //if (userRoles[0].ToString() == RoleName.Admin)
+                if (userRoles.Contains(RoleName.Admin))
                 { isAdminUser = true; }
                 else
                 { isAdminUser = false; }
@@ -45,7 +46,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         public void Set_Flag_For_Admin2()
         {
             // this ViewBag value will be accessible in View & Child Views
-            ViewBag.isAdminUser = Is_User_In_Role2("Admin");
+            ViewBag.isAdminUser = Is_User_In_Role2(RoleName.Admin);
         }
 
 

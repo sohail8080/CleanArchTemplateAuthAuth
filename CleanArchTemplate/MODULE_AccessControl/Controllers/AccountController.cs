@@ -182,8 +182,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     // Code to Create User with Role, Role, UserRole
                     //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
                     //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-                    //await roleManager.CreateAsync(new IdentityRole("Admin")); // Create Role in DB
-                    //await UserManager.AddToRoleAsync(user.Id, "Admin"); // Add UserRole in DB
+                    //await roleManager.CreateAsync(new IdentityRole(RoleName.Admin)); // Create Role in DB
+                    //await UserManager.AddToRoleAsync(user.Id, RoleName.Admin); // Add UserRole in DB
 
                     // Ever newly singned in User is assigned the Role of Customer
                     //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB

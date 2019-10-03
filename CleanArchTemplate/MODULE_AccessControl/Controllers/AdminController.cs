@@ -14,7 +14,7 @@ using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = RoleName.Admin)]
     public class AdminController : BaseController
     {
         public ActionResult Index()

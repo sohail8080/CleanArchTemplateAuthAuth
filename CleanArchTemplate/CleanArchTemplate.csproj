@@ -194,6 +194,9 @@
     <Compile Include="MODULE_AccessControl\Persistence\UOW\ManageDbContext.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\RolesController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersController.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleName.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleFormViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ConfigureTwoFactorViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateRoleViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\VerifyPhoneNumberViewModel.cs" />
@@ -248,13 +251,13 @@
     <Content Include="MODULE_Home\Views\_ViewStart.cshtml" />
     <Content Include="MODULE_AccessControl\Views\_ViewStart.cshtml" />
     <Content Include="Common\Views\_NavBar.cshtml" />
-    <Content Include="MODULE_AccessControl\Views\Admin\Roles\Create.cshtml" />
-    <Content Include="MODULE_AccessControl\Views\Admin\Roles\Index.cshtml" />
-    <Content Include="MODULE_AccessControl\Views\Admin\Users\Index.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Roles\RoleForm.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Roles\List.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\List.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Index.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Details.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Details.cshtml" />
-    <Content Include="MODULE_AccessControl\Views\Admin\Users\Create.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\UserForm.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

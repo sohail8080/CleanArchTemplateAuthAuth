@@ -1,11 +1,11 @@
-﻿@model CleanArchTemplate.AccessControl.ViewModels.CreateRoleViewModel
+﻿@model CleanArchTemplate.AccessControl.ViewModels.RoleFormViewModel
 @{
-    ViewBag.Title = "Add New Role";    
+    ViewBag.Title = Model.Title;
 }
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm("Create", "Roles", routeValues: new { area = "AccessControl" }, method: FormMethod.Post, htmlAttributes: new { @class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("Save", "Roles", routeValues: new { area = "AccessControl" }, method: FormMethod.Post, htmlAttributes: new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
 
@@ -13,7 +13,7 @@
     <hr />
     @Html.ValidationSummary("", new { @class = "text-danger" })
 
-    
+
     <div class="form-group">
         @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
@@ -21,10 +21,12 @@
             @Html.ValidationMessageFor(m => m.Name);
         </div>
     </div>
+
+    @Html.HiddenFor(m => m.Id)
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-primary" value="Create Role" />
-            @Html.ActionLink("Cancel", "Index", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
+            <input type="submit" class="btn btn-primary" value="Save" />
+            @Html.ActionLink("Cancel", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
         </div>
     </div>
 

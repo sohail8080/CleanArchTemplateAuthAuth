@@ -14,8 +14,8 @@ using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
-    [Authorize(Roles ="Admin")]
-	public class UsersController : BaseController
+    [Authorize(Roles = RoleName.Admin)]
+    public class UsersController : BaseController
     {
 
         // Two App. Service used for Account Management
@@ -31,7 +31,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public UsersController(ApplicationUserManager userManager, 
+        public UsersController(ApplicationUserManager userManager,
                                 ApplicationSignInManager signInManager,
                                 RoleManager<IdentityRole> roleManager)
         {
@@ -44,36 +44,57 @@ namespace CleanArchTemplate.AccessControl.Controllers
         ////////////////Below Controller Methods//////////////////////
 
         // GET: Users       
-        public ActionResult Index()
-		{
+        public ActionResult List()
+        {
             var users = _context.Users.Include(u => u.Roles).ToList();
             Set_Flag_For_Admin();
-			return View("Index", users);
-		}
+            return View("List", users);
+        }
 
         public ActionResult Details(string id)
-        {            
+        {
             var user = _context.Users.Where(u => u.Id == id).FirstOrDefault();
+            Set_Flag_For_Admin();
             return View("Details", user);
+        }
+
+
+        public ActionResult Edit(string id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+                return HttpNotFound();
+
+            var viewModel = new UserFormViewModel(user);
+
+            Set_Flag_For_Admin();
+            return View("UserForm", viewModel);
         }
 
 
         public ActionResult Delete(string id)
         {
-            var user = _context.Users.Where(u => u.Id == id).FirstOrDefault();
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
             _context.Users.Remove(user);
-            _context.SaveChanges();
+            int deleteResult = _context.SaveChanges();
 
-            var users = _context.Users.Include(u => u.Roles).ToList();
-            Set_Flag_For_Admin();
-            return View("Index", users);
+            if (deleteResult <= 0)
+                ModelState.AddModelError("", "Error occurred while deleting User");
+
+            return RedirectToAction("List", "Users", new { area = "AccessControl" });
+            //var users = _context.Users.Include(u => u.Roles).ToList();
+            //Set_Flag_For_Admin();
+            //return View("List", users);
         }
 
 
 
         public ActionResult Create()
         {
-            return View("Create");
+            var viewModel = new UserFormViewModel();
+            Set_Flag_For_Admin();
+            return View("UserForm", viewModel);
         }
 
 
@@ -82,44 +103,70 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(RegisterViewModel model)
+        public async Task<ActionResult> Save(UserFormViewModel viewModel)
         {
-            // Get Data as View Model from View, Validate ViewModel
-            if (ModelState.IsValid)
+            IdentityResult result = null;
+            if (ModelState.IsValid && viewModel.Id == "")
             {
                 // Creat the Domain Object                
                 var user = new ApplicationUser
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    DrivingLicense = model.DrivingLicense,// New Properties
-                    Phone = model.Phone, // New Properties
+                    UserName = viewModel.Email,
+                    Email = viewModel.Email,
+                    DrivingLicense = viewModel.DrivingLicense,// New Properties
+                    Phone = viewModel.Phone, // New Properties
                 };
 
                 // pass the Domain Object to the Service UserManager
-                var result = await UserManager.CreateAsync(user, model.Password);
+                result = await UserManager.CreateAsync(user, viewModel.Password);
                 if (result.Succeeded)
                 {
 
                     // Code to Create User with Role, Role, UserRole
                     //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
                     //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-                    //await roleManager.CreateAsync(new IdentityRole("Admin")); // Create Role in DB
-                    //await UserManager.AddToRoleAsync(user.Id, "Admin"); // Add UserRole in DB
+                    //await roleManager.CreateAsync(new IdentityRole(RoleName.Admin)); // Create Role in DB
+                    //await UserManager.AddToRoleAsync(user.Id, RoleName.Admin); // Add UserRole in DB
 
                     // Ever newly singned in User is assigned the Role of Customer
                     //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
 
-                    var users = _context.Users.Include(u => u.Roles).ToList();
-                    Set_Flag_For_Admin();
-                    return View("Index", users);
+                    return RedirectToAction("List", "Users", new { area = "AccessControl" });
+                    //var users = _context.Users.Include(u => u.Roles).ToList();
+                    //Set_Flag_For_Admin();
+                    //return View("List", users);
                 }
-
-                AddErrors(result);
+                else
+                {
+                    AddErrors(result);
+                    Set_Flag_For_Admin();
+                    return View("UserForm", viewModel);
+                }
             }
+            else if (ModelState.IsValid && viewModel.Id != "")
+            {
 
-            // If we got this far, something failed, redisplay form
-            return View("Register", model);
+                var userInDB = _context.Users.FirstOrDefault(u => u.Id == viewModel.Id);
+
+                userInDB.UserName = viewModel.Email;
+                userInDB.Email = viewModel.Email;
+                userInDB.DrivingLicense = viewModel.DrivingLicense;
+                userInDB.Phone = viewModel.Phone;
+                var updateResult = _context.SaveChanges();
+
+                if (updateResult <= 0)
+                    ModelState.AddModelError("", "Error occurred while saving User");
+
+                return RedirectToAction("List", "Users", new { area = "AccessControl" });
+
+                //var users = _context.Users.Include(u => u.Roles).ToList();
+                //Set_Flag_For_Admin();
+                //return View("List", users);
+            }
+            //AddErrors(result);
+            Set_Flag_For_Admin();
+            return View("UserForm", viewModel);
+
         }
 
 
@@ -137,7 +184,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var manager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var user = manager.FindById(User.Identity.GetUserId());
             //var user2 = UserManager.FindById(User.Identity.GetUserId());
-            
+
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
             ApplicationUser currentUser = UserManager.FindById(User.Identity.GetUserId());
 
