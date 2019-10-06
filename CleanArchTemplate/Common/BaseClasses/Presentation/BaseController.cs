@@ -14,8 +14,122 @@ namespace CleanArchTemplate.Common.BaseClasses
 
         IList<string> userRoles = null;
 
+        //protected void HandleResult(IdentityResult result, string successMessage)
+        //{
+        //    if (!result.Succeeded)
+        //    { AddErrors(result); }
+        //    else
+        //    {
+        //        ViewBag.Message = successMessage;
+        //        // TempData is used in case of RedirectAction to persever data
+        //        //TempData["Message"] = successMessage;
+        //    }
+        //}
 
-        public void Set_Flag_For_Admin()
+
+
+
+        protected void HandleAddResult(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while adding Record(s)";
+                AddErrors(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) added successfully.";
+            }
+        }
+
+        protected void HandleUpdateResult(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                AddErrors(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) updated successfully.";
+            }
+        }
+
+        protected void HandleDeleteResult(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while deleting Record(s)";
+                AddErrors(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) deleted successfully.";
+            }
+        }
+
+
+
+
+        protected void HandleAddResult(int result)
+        {
+            if (result <= 0)
+            {
+                ViewBag.Message = "Error occurred while adding Record(s)";
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) added successfully.";
+            }
+        }
+
+        protected void HandleUpdateResult(int result)
+        {
+            if (result <= 0)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) updated successfully.";
+            }
+        }
+
+        protected void HandleDeleteResult(int result)
+        {
+            if (result <= 0)
+            {
+                ViewBag.Message = "Error occurred while deleting Record(s)";
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) deleted successfully.";
+            }
+        }
+
+
+        protected void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
+        }
+
+        protected void RestoreViewBagMessage()
+        {
+            if (ViewBag.Message != null && ViewBag.Message != string.Empty)
+                ViewBag.Message = ViewBag.Message;
+        }
+
+
+        protected void RestoreTempDataMessage()
+        {
+            if (TempData["Message"] != null && TempData["Message"].ToString() != string.Empty)
+                ViewBag.Message = TempData["Message"].ToString();
+        }
+
+        protected void Set_Flag_For_Admin()
         {
             bool isAdminUser = false;
             var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
@@ -43,14 +157,14 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        public void Set_Flag_For_Admin2()
+        protected void Set_Flag_For_Admin2()
         {
             // this ViewBag value will be accessible in View & Child Views
             ViewBag.isAdminUser = Is_User_In_Role2(RoleName.Admin);
         }
 
 
-        public IList<string> Get_User_Roles()
+        protected IList<string> Get_User_Roles()
         {
             if (userRoles != null)
                 return userRoles;
@@ -71,7 +185,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        public bool Is_User_In_Role(string role)
+        protected bool Is_User_In_Role(string role)
         {
             var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             //var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
@@ -89,7 +203,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        public bool Is_User_In_Role2(string role)
+        protected bool Is_User_In_Role2(string role)
         {
             if (Get_User_Roles() == null || Get_User_Roles().Count <= 0)
                 return false;
@@ -99,7 +213,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        public void Set_Flag_For_Roles()
+        protected void Set_Flag_For_Roles()
         {
             var userRoles = Get_User_Roles();
 
@@ -110,7 +224,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        public bool Create_Role(string role)
+        protected bool Create_Role(string role)
         {
             // Following is the Startup code, this should be executed when the 
             // Application first starts and add Roles to the Application

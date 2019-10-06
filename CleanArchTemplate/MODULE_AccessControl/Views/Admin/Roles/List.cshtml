@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
 @{
-    ViewBag.Title = "Add Role";    
+    ViewBag.Title = "Add Role";
     bool isAdminUser = false;
     if (ViewBag.isAdminUser != null)
     { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
@@ -12,11 +12,24 @@
 
 @if (isAdminUser)
 {
-<p>
-    @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
-    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-</p>
+    <p>
+        @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
+        @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+    </p>
 }
+
+@if (ViewBag.Message != null && ViewBag.Message != string.Empty)
+{
+    <p>
+        @ViewBag.Message
+    </p>
+}
+
+<p>
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+</p>
+
+
 <table id="roles" class="table table-bordered table-hover">
     <thead>
         <tr>
@@ -30,12 +43,12 @@
 
         @foreach (var role in Model)
         {
-        <tr>
-            <td>  @role.Name</td>
-            <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
-            <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
-            <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
-        </tr>
+            <tr>
+                <td>  @role.Name</td>
+                <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
+                <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
+                <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+            </tr>
 
         }
 

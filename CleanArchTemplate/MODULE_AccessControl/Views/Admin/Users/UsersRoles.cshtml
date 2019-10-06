@@ -1,0 +1,67 @@
+﻿@using CleanArchTemplate.Common.UOW
+
+@model IList<CleanArchTemplate.AccessControl.ViewModels.UsersRolesViewModel>
+@{
+    /**/
+
+    ViewBag.Title = "Add Users Role";
+    bool isAdminUser = false;
+    if (ViewBag.isAdminUser != null)
+    { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
+}
+
+<h2>Add Roles to @ViewBag.UserName </h2>
+
+@*Just for demo, how UI can be customized based on roles*@
+
+
+@if (ViewBag.Message != null && ViewBag.Message != string.Empty)
+{
+    <p>
+        @ViewBag.Message
+    </p>
+}
+
+<p>
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+</p>
+
+@if (isAdminUser)
+{
+    <p>
+        @Html.ActionLink("Back", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+    </p>
+}
+
+
+<table id="roles" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Roles</th>
+            <th>Add Remove</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var viewModel in Model)
+        {
+            <tr>
+                <td>@viewModel.RoleName</td>
+                @if (!viewModel.IsRoleAdded)
+                {
+                    <td>@Html.ActionLink("Add", "AddUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "addRoleLink" })</td>}
+                else
+                {
+                    <td>@Html.ActionLink("Remove", "RemoveUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "removeRoleLink" })</td>}
+            </tr>
+
+        }
+
+    </tbody>
+</table>
+
+
+
+
+
+

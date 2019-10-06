@@ -43,7 +43,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         ////////////////Below Controller Methods//////////////////////
 
-        // GET: Users       
+      
         public ActionResult List()
         {
             var users = _context.Users.Include(u => u.Roles).ToList();
@@ -58,6 +58,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("Details", user);
         }
 
+        public ActionResult Create()
+        {
+            var viewModel = new UserFormViewModel();
+            Set_Flag_For_Admin();
+            return View("UserForm", viewModel);
+        }
 
         public ActionResult Edit(string id)
         {
@@ -67,46 +73,16 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return HttpNotFound();
 
             var viewModel = new UserFormViewModel(user);
-
             Set_Flag_For_Admin();
             return View("UserForm", viewModel);
         }
 
-
-        public ActionResult Delete(string id)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            _context.Users.Remove(user);
-            int deleteResult = _context.SaveChanges();
-
-            if (deleteResult <= 0)
-                ModelState.AddModelError("", "Error occurred while deleting User");
-
-            return RedirectToAction("List", "Users", new { area = "AccessControl" });
-            //var users = _context.Users.Include(u => u.Roles).ToList();
-            //Set_Flag_For_Admin();
-            //return View("List", users);
-        }
-
-
-
-        public ActionResult Create()
-        {
-            var viewModel = new UserFormViewModel();
-            Set_Flag_For_Admin();
-            return View("UserForm", viewModel);
-        }
-
-
-
-        //
-        // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Save(UserFormViewModel viewModel)
         {
             IdentityResult result = null;
-            if (ModelState.IsValid && viewModel.Id == "")
+            if (ModelState.IsValid && string.IsNullOrEmpty(viewModel.Id))
             {
                 // Creat the Domain Object                
                 var user = new ApplicationUser
@@ -119,6 +95,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
                 // pass the Domain Object to the Service UserManager
                 result = await UserManager.CreateAsync(user, viewModel.Password);
+                HandleAddResult(result);
+
                 if (result.Succeeded)
                 {
 
@@ -131,7 +109,10 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     // Ever newly singned in User is assigned the Role of Customer
                     //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
 
-                    return RedirectToAction("List", "Users", new { area = "AccessControl" });
+                    return List();
+                    //return RedirectToAction("List", "Users", new { area = "AccessControl" });
+
+
                     //var users = _context.Users.Include(u => u.Roles).ToList();
                     //Set_Flag_For_Admin();
                     //return View("List", users);
@@ -143,7 +124,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     return View("UserForm", viewModel);
                 }
             }
-            else if (ModelState.IsValid && viewModel.Id != "")
+            else if (ModelState.IsValid && !string.IsNullOrEmpty(viewModel.Id))
             {
 
                 var userInDB = _context.Users.FirstOrDefault(u => u.Id == viewModel.Id);
@@ -152,16 +133,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 userInDB.Email = viewModel.Email;
                 userInDB.DrivingLicense = viewModel.DrivingLicense;
                 userInDB.Phone = viewModel.Phone;
-                var updateResult = _context.SaveChanges();
+                HandleUpdateResult(_context.SaveChanges());
 
-                if (updateResult <= 0)
-                    ModelState.AddModelError("", "Error occurred while saving User");
+                return List();
+                //return RedirectToAction("List", "Users", new { area = "AccessControl" });
 
-                return RedirectToAction("List", "Users", new { area = "AccessControl" });
-
-                //var users = _context.Users.Include(u => u.Roles).ToList();
-                //Set_Flag_For_Admin();
-                //return View("List", users);
             }
             //AddErrors(result);
             Set_Flag_For_Admin();
@@ -169,30 +145,23 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         }
 
-
-        private void AddErrors(IdentityResult result)
+        public ActionResult Delete(string id)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
-            }
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            _context.Users.Remove(user);
+            HandleDeleteResult(_context.SaveChanges());
+
+            return List();
+            //return RedirectToAction("List", "Users", new { area = "AccessControl" });
         }
 
 
-        public void GetApplicationUser()
-        {
-            var manager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            var user = manager.FindById(User.Identity.GetUserId());
-            //var user2 = UserManager.FindById(User.Identity.GetUserId());
 
-            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
-            ApplicationUser currentUser = UserManager.FindById(User.Identity.GetUserId());
 
-            string ID = currentUser.Id;
-            string Email = currentUser.Email;
-            string Username = currentUser.UserName;
 
-        }
+
+
+
 
 
         // Controller is not getting these properties by DI/IOC
@@ -234,8 +203,20 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
         }
 
+        public void GetApplicationUser()
+        {
+            var manager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            var user = manager.FindById(User.Identity.GetUserId());
+            //var user2 = UserManager.FindById(User.Identity.GetUserId());
 
+            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
+            ApplicationUser currentUser = UserManager.FindById(User.Identity.GetUserId());
 
+            string ID = currentUser.Id;
+            string Email = currentUser.Email;
+            string Username = currentUser.UserName;
+
+        }
 
     }
 }

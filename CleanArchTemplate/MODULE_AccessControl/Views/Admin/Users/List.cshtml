@@ -12,13 +12,25 @@
 
 @*Just for demo, how UI can be customized based on roles*@
 
-@if (isAdminUser)
+@if(isAdminUser)
 {
-<p>
-    @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
-    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-</p>
+    <p>
+        @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
+        @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+    </p>
 }
+
+@if(ViewBag.Message != null && ViewBag.Message != string.Empty)
+{
+    <p>
+        @ViewBag.Message
+    </p>
+}
+
+<p>
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+</p>
+
 <table id="roles" class="table table-bordered table-hover">
     <thead>
         <tr>
@@ -26,33 +38,35 @@
             <th>Details</th>
             <th>Edit</th>
             <th>Delete</th>
+            <th>Add Roles</th>
         </tr>
     </thead>
     <tbody>
 
         @foreach (var user in Model)
         {
-        <tr>
-            <td>  @user.UserName</td>
-            <td>
-                @if (user.Roles != null && user.Roles.Count >= 1)
-                {
-                    var userRoleIds = user.Roles;
-                    string rolelist = string.Empty;
-                    foreach (var userRoleId in userRoleIds)
+            <tr>
+                <td>  @user.UserName</td>
+                <td>
+                    @if (user.Roles != null && user.Roles.Count >= 1)
                     {
-                        var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRoleId.RoleId);
-                        rolelist = rolelist + role.Name + ", ";
+                        var userRoleIds = user.Roles;
+                        string rolelist = string.Empty;
+                        foreach (var userRoleId in userRoleIds)
+                        {
+                            var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRoleId.RoleId);
+                            rolelist = rolelist + role.Name + ", ";
+                        }
+
+                        @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
                     }
+                </td>
 
-                    @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
-                }
-            </td>
+                <td>@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userEditLink" })</td>
+                <td>@Html.ActionLink("Delete", "Delete", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
+                <td>@Html.ActionLink("Add Roles", "List", "UsersRoles", routeValues: new { userid = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
 
-            <td>@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userEditLink" })</td>
-            <td>@Html.ActionLink("Delete", "Delete", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
-
-        </tr>
+            </tr>
 
         }
 

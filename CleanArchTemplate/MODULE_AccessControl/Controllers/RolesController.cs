@@ -53,8 +53,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
             // Both Requires ApplicationDbContext
             //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
             //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-            var roles = RoleManager.Roles.ToList();
 
+            var roles = RoleManager.Roles.ToList();
             Set_Flag_For_Admin();
             return View("List", roles);
 
@@ -69,7 +69,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
             var role = RoleManager.FindById(id);
-
             return View("Details", role);
         }
 
@@ -83,19 +82,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var rold = _context.Roles.Select(r => r.Id == id);
             var role = _context.Roles.FirstOrDefault(r => r.Id == id);
             _context.Roles.Remove(role);
-            var deleteResult = _context.SaveChanges();
+            HandleDeleteResult(_context.SaveChanges());
 
-            if (deleteResult <= 0)
-                ModelState.AddModelError("", "Error occurred while deleting User");
-
-            //if (!result.Succeeded)
-            //    ModelState.AddModelError("", "Error occured while deleting role.");
-
-            return RedirectToAction("List", "Roles", new { area = "AccessControl" });
-
-            //var roles = RoleManager.Roles.ToList();
-            //Set_Flag_For_Admin();
-            //return View("List", roles);            
+            return List();
+            //return RedirectToAction("List", "Roles", new { area = "AccessControl" });
+            
         }
 
         public ActionResult Create()
@@ -105,7 +96,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("RoleForm", viewModel);
         }
 
-
         public ActionResult Edit(string id)
         {
             var role = _context.Roles.FirstOrDefault(r => r.Id == id);
@@ -114,24 +104,23 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return HttpNotFound();
 
             var viewModel = new RoleFormViewModel(role);
-
             Set_Flag_For_Admin();
             return View("RoleForm", viewModel);
         }
-
-
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]       
         public async Task<ActionResult> Save(RoleFormViewModel viewModel)
         {
+            IdentityResult result;
+
             if (!ModelState.IsValid)
             {
                 return View("RoleForm", viewModel);
             }
 
-            if(viewModel.Id == "")
+            if(string.IsNullOrEmpty(viewModel.Id))
             {
                 // Create Role Method 1 by Calling RoleManager Service Asyn Method
                 //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
@@ -139,7 +128,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
                 if (!RoleManager.RoleExists(viewModel.Name))
                 {
-                    await RoleManager.CreateAsync(new IdentityRole(viewModel.Name)); // Create Role in DB
+                    HandleAddResult(await RoleManager.CreateAsync(new IdentityRole(viewModel.Name))); // Create Role in DB
                 }
                 else
                 {
@@ -147,19 +136,18 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     return View("RoleForm", viewModel);
                 }
 
-                return RedirectToAction("List", "Roles", new { area = "AccessControl" });
+                return List();
+                //return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             }
             else
             {
                 var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
 
                 roleInDB.Name = viewModel.Name;
-                int updateResult = _context.SaveChanges();
+                HandleUpdateResult(_context.SaveChanges());
 
-                if (updateResult <= 0)
-                    ModelState.AddModelError("", "Error occurred while updating Role.");
-              
-                return RedirectToAction("List", "Roles", new { area = "AccessControl" });
+                return List();
+                //return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             }
 
 
@@ -171,7 +159,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             _context.Roles.Add(Role);
             _context.SaveChanges();
-            return RedirectToAction("List", "Roles", new { area = "AccessControl" });
+            return RedirectToAction("List", "Roles", routeValues:new { area = "AccessControl" });
         }
 
 
