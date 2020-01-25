@@ -17,6 +17,23 @@ namespace CleanArchTemplate.AccessControl.Controllers
     [Authorize(Roles = RoleName.Admin)]
     public class AdminController : BaseController
     {
+
+        public AdminController()
+        {
+
+        }
+
+        public AdminController(ApplicationDbContext context,
+                        ApplicationUserManager userManager,
+                        ApplicationSignInManager signInManager,
+                        ApplicationRoleManager roleManager)
+        {
+            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
+        }
+
         public ActionResult Index()
         {
             Set_Flag_For_Admin();

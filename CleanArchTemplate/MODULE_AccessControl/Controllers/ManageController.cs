@@ -8,6 +8,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using CleanArchTemplate.AccessControl.ViewModels;
 using CleanArchTemplate.Common.BaseClasses;
+using CleanArchTemplate.Common.UOW;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
@@ -23,10 +24,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public ManageController(ApplicationUserManager userManager,
+        public ManageController(ApplicationDbContext context,
+                                ApplicationUserManager userManager,
                                 ApplicationSignInManager signInManager,
                                 ApplicationRoleManager roleManager)
         {
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;

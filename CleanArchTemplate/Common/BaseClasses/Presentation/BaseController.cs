@@ -14,6 +14,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         internal ApplicationSignInManager _signInManager;
         internal ApplicationUserManager _userManager;
         internal ApplicationRoleManager _roleManager;
+        internal ApplicationDbContext _context;
 
         // Controller is not getting these properties by DI/IOC
         // In Startup.Auth.cs these Services are configured to stored in the 
@@ -64,7 +65,18 @@ namespace CleanArchTemplate.Common.BaseClasses
             }
         }
 
-
+        // Controller is not getting these properties by DI/IOC
+        internal ApplicationDbContext Context
+        {
+            get
+            {
+                return _context ?? HttpContext.GetOwinContext().Get<ApplicationDbContext>();
+            }
+            set
+            {
+                _context = value;
+            }
+        }
 
         IList<string> userRoles = null;
 

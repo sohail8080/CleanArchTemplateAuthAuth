@@ -28,10 +28,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public UsersRolesController(ApplicationUserManager userManager,
+        public UsersRolesController(ApplicationDbContext context,
+                                ApplicationUserManager userManager,
                                 ApplicationSignInManager signInManager,
                                 ApplicationRoleManager roleManager)
         {
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
