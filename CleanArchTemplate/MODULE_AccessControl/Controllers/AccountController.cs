@@ -12,15 +12,13 @@ using CleanArchTemplate.AccessControl.ViewModels;
 using CleanArchTemplate.AccessControl.Domain;
 using Microsoft.AspNet.Identity.EntityFramework;
 using CleanArchTemplate.Common.UOW;
+using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-        // Two App. Service used for Account Management
-        private ApplicationSignInManager _signInManager;
-        private ApplicationUserManager _userManager;
 
         public AccountController()
         {
@@ -28,44 +26,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager,
+                                ApplicationSignInManager signInManager,
+                                ApplicationRoleManager roleManager)
         {
-            UserManager = userManager;
-            SignInManager = signInManager;
-
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
-
-        // Controller is not getting these properties by DI/IOC
-        // In Startup.Auth.cs these Services are configured to stored in the 
-        // Owin Context. here the are get from context and used
-        // every request has its own copy of these objects.
-        // we can add others objects as well. currently three objects stored.
-        // ApplicationDbContext,  ApplicationUserManager, ApplicationSignInManager
-        public ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set 
-            { 
-                _signInManager = value; 
-            }
-        }
-
-        // Controller is not getting these properties by DI/IOC
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
 
         ////////////////Below Controller Methods//////////////////////
 

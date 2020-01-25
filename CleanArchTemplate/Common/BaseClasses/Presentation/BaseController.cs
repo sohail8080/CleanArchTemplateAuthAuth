@@ -11,6 +11,60 @@ namespace CleanArchTemplate.Common.BaseClasses
 {
     public class BaseController : Controller
     {
+        internal ApplicationSignInManager _signInManager;
+        internal ApplicationUserManager _userManager;
+        internal ApplicationRoleManager _roleManager;
+
+        // Controller is not getting these properties by DI/IOC
+        // In Startup.Auth.cs these Services are configured to stored in the 
+        // Owin Context. here the are get from context and used
+        // every request has its own copy of these objects.
+        // we can add others objects as well. currently three objects stored.
+        // ApplicationDbContext,  ApplicationUserManager, ApplicationSignInManager
+
+
+
+        // Controller is not getting these properties by DI/IOC
+        internal ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
+            set
+            {
+                _signInManager = value;
+            }
+        }
+
+        // Controller is not getting these properties by DI/IOC
+        internal ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            set
+            {
+                _userManager = value;
+            }
+        }
+
+
+        // Controller is not getting these properties by DI/IOC
+        internal ApplicationRoleManager RoleManager
+        {
+            get
+            {
+                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
+            }
+            set
+            {
+                _roleManager = value;
+            }
+        }
+
+
 
         IList<string> userRoles = null;
 

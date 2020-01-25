@@ -7,53 +7,29 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using CleanArchTemplate.AccessControl.ViewModels;
+using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
     // All these Use Cases are allowed to the Singed In Users
     // There for Authorize Attribute at the level of Controller Class
     [Authorize]
-    public class ManageController : Controller
+    public class ManageController : BaseController
     {
-        private ApplicationSignInManager _signInManager;
-        private ApplicationUserManager _userManager;
-
         public ManageController()
         {
+
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
-        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public ManageController(ApplicationUserManager userManager,
+                                ApplicationSignInManager signInManager,
+                                ApplicationRoleManager roleManager)
         {
-            UserManager = userManager;
-            SignInManager = signInManager;
-        }
-
-        // Controller is not getting these properties by DI/IOC
-        public ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set 
-            { 
-                _signInManager = value; 
-            }
-        }
-
-        // Controller is not getting these properties by DI/IOC
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
 

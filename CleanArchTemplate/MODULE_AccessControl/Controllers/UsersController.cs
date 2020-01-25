@@ -20,16 +20,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
     public class UsersController : BaseController
     {
 
-        // Two App. Service used for Account Management
-        private ApplicationSignInManager _signInManager;
-        private ApplicationUserManager _userManager;
-        private ApplicationRoleManager _roleManager;
-        //private RoleManager<IdentityRole> _roleManager2;
-        //private ApplicationDbContext _context;
-
         public UsersController()
-        {
-            //_context = new ApplicationDbContext();
+        {            
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
@@ -164,68 +156,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //return RedirectToAction("List", "Users", new { area = "AccessControl" });
         }
 
-
-
-
-
-
-
-
-
-
-        // Controller is not getting these properties by DI/IOC
-        private ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            set
-            {
-                _signInManager = value;
-            }
-        }
-
-        // Controller is not getting these properties by DI/IOC
-        private ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            set
-            {
-                _userManager = value;
-            }
-        }
-
-
-        // Controller is not getting these properties by DI/IOC
-        private ApplicationRoleManager RoleManager
-        {
-            get
-            {
-                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
-            }
-            set
-            {
-                _roleManager = value;
-            }
-        }
-
-
-        // Controller is not getting these properties by DI/IOC
-        //private RoleManager<IdentityRole> RoleManager2
-        //{
-        //    get
-        //    {
-        //        return _roleManager2 ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(_context));
-        //    }
-        //    set
-        //    {
-        //        _roleManager = value;
-        //    }
-        //}
 
         public void GetApplicationUser()
         {
