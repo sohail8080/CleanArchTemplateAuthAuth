@@ -7,10 +7,14 @@ using CleanArchTemplate.AccessControl.Domain;
 
 namespace CleanArchTemplate.Common.UOW
 {
+
+    //public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string, IdentityUserLogin, IdentityUserRole, IdentityUserClaim>
+    //public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+         : base("DefaultConnection", throwIfV1Schema: false)
+         //: base("DefaultConnection")
         {
         }
 

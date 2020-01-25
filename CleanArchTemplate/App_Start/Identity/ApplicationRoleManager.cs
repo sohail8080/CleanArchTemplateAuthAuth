@@ -14,16 +14,16 @@ namespace CleanArchTemplate
     //Exposes role related api which will automatically save changes 
     // to the RoleStore
 
-    public class ApplicationRoleManager : RoleManager<ApplicationRole>
+    public class ApplicationRoleManager : RoleManager<IdentityRole>
     {
-        public ApplicationRoleManager(RoleStore<ApplicationRole> store)
+        public ApplicationRoleManager(RoleStore<IdentityRole> store)
                                     : base(store)
         {
         }
 
         public static ApplicationRoleManager Create(IdentityFactoryOptions<ApplicationRoleManager> options, IOwinContext context)       
         {
-            var manager = new ApplicationRoleManager(new RoleStore<ApplicationRole>(context.Get<ApplicationDbContext>()));
+            var manager = new ApplicationRoleManager(new RoleStore<IdentityRole>(context.Get<ApplicationDbContext>()));
             return manager;
         }
 

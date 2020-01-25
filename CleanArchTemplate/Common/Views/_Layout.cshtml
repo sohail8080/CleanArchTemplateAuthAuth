@@ -5,17 +5,19 @@
 
 @{
     bool isAdminUser = false; // this variable is accessible in child Views
-var userManager = this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-var user = User.Identity.GetUserId();
-if (user != null)
-{
+    var userManager = this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
+    var user = User.Identity.GetUserId();
+    if (user != null)
+    {
+
     var userRoles = userManager.GetRoles(User.Identity.GetUserId());
     if (userRoles == null | userRoles.Count <= 0)
     { isAdminUser = false; }
     else if (userRoles[0].ToString() == RoleName.Admin)
     { isAdminUser = true; }
-}
-}
+
+    }
+    }
 
 <!DOCTYPE html>
 <html>

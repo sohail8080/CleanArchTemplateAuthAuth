@@ -26,11 +26,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
         private ApplicationUserManager _userManager;
         private ApplicationRoleManager _roleManager;
         private RoleManager<IdentityRole> _roleManager2;        
-        private ApplicationDbContext _context;
+        //private ApplicationDbContext _context;
 
         public RolesController()
         {
-            _context = new ApplicationDbContext();
+            //_context = new ApplicationDbContext();
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
@@ -76,18 +76,22 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
             //var role = RoleManager.FindById(id);
             //var result = RoleManager.Delete(role);
 
             //var role = _context.Roles.Where(r => r.Name == "my role name").FirstOrDefault();
             //var rold = _context.Roles.Select(r => r.Id == id);
-            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
-            _context.Roles.Remove(role);
-            HandleDeleteResult(_context.SaveChanges());
 
+            //var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+            //_context.Roles.Remove(role);
+            //HandleDeleteResult(_context.SaveChanges());
+
+            var role = await RoleManager.FindByIdAsync(id);
+            await RoleManager.DeleteAsync(role);
             return List();
+
             //return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             
         }
@@ -101,7 +105,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public ActionResult Edit(string id)
         {
-            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+            var role = RoleManager.Roles.FirstOrDefault(r => r.Id == id);
 
             if (role == null)
                 return HttpNotFound();
@@ -116,7 +120,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]       
         public async Task<ActionResult> Save(RoleFormViewModel viewModel)
         {
-            IdentityResult result;
+            //IdentityResult result;
 
             if (!ModelState.IsValid)
             {
@@ -131,7 +135,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
                 if (!RoleManager.RoleExists(viewModel.Name))
                 {
-                    HandleAddResult(await RoleManager2.CreateAsync(new IdentityRole(viewModel.Name))); // Create Role in DB
+                    HandleAddResult(await RoleManager.CreateAsync(new IdentityRole(viewModel.Name))); // Create Role in DB
                 }
                 else
                 {
@@ -144,11 +148,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
             else
             {
-                var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
+                //var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
+                var roleInDB = await RoleManager.FindByIdAsync(viewModel.Id);
 
                 roleInDB.Name = viewModel.Name;
-                HandleUpdateResult(_context.SaveChanges());
+                IdentityResult result = await RoleManager.UpdateAsync(roleInDB);
 
+                //HandleUpdateResult(_context.SaveChanges());
+                HandleUpdateResult(result);
                 return List();
                 //return RedirectToAction("List", "Roles", new { area = "AccessControl" });
             }
@@ -158,18 +165,13 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create2(IdentityRole Role)
+        public ActionResult Create2(IdentityRole role)
         {
-            _context.Roles.Add(Role);
-            _context.SaveChanges();
+            //_context.Roles.Add(Role);
+            RoleManager.CreateAsync(role);
+            //_context.SaveChanges();
             return RedirectToAction("List", "Roles", routeValues:new { area = "AccessControl" });
         }
-
-
-
-
-
-
 
 
 
@@ -215,25 +217,25 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
         // Controller is not getting these properties by DI/IOC
-        private RoleManager<IdentityRole> RoleManager2
-        {
-            get
-            {                
-                return _roleManager2 ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
-            }
-             set
-            {
-                _roleManager2 = value;
-            }
-        }
+        //private RoleManager<IdentityRole> RoleManager2
+        //{
+        //    get
+        //    {                
+        //        return _roleManager2 ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+        //    }
+        //     set
+        //    {
+        //        _roleManager2 = value;
+        //    }
+        //}
 
 
         public IEnumerable<ApplicationUser> GetApplicationUsersInRole(string roleName)
         {
-            return from role in _context.Roles
+            return from role in RoleManager.Roles
                    where role.Name == roleName
                    from userRoles in role.Users
-                   join user in _context.Users
+                   join user in UserManager.Users
                    on userRoles.UserId equals user.Id
                    where user.EmailConfirmed == true
                    select user;
@@ -242,8 +244,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public IEnumerable<ApplicationUser> GetApplicationUsersInRole2(string roleName)
         {
-            var users = _context.Users.Include(u => u.Roles).ToList();
-            var role = _context.Roles.FirstOrDefault(r => r.Name == roleName);
+            var users = UserManager.Users.Include(u => u.Roles).ToList();
+            var role = RoleManager.Roles.FirstOrDefault(r => r.Name == roleName);
 
             var list = from user in users
                    where user.Roles.Any(r => r.RoleId == role.Id)

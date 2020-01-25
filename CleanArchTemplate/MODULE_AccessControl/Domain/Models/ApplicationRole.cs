@@ -8,9 +8,9 @@ namespace CleanArchTemplate.AccessControl.Domain
 {
     // Represents a Role entity in AccessControl Domain Model
 
-    public class ApplicationRole : IdentityRole
-    {
-        public ApplicationRole() : base() { }
+    //public class ApplicationRole : IdentityRole
+    //{
+        //public ApplicationRole() : base() { }
 
         //public ApplicationRole(string name, string description) : base(name)
         //{
@@ -18,7 +18,7 @@ namespace CleanArchTemplate.AccessControl.Domain
         //}
 
         // public virtual string Description { get; set; }
-    }
+    //}
 
 
     //public class ApplicationRole : IdentityRole

@@ -23,19 +23,20 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // Two App. Service used for Account Management
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-        private RoleManager<IdentityRole> _roleManager;
-        ApplicationDbContext _context;
+        private ApplicationRoleManager _roleManager;
+        //private RoleManager<IdentityRole> _roleManager2;
+        //private ApplicationDbContext _context;
 
         public UsersController()
         {
-            _context = new ApplicationDbContext();
+            //_context = new ApplicationDbContext();
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
         // Currently they are coded in the controller.
         public UsersController(ApplicationUserManager userManager,
                                 ApplicationSignInManager signInManager,
-                                RoleManager<IdentityRole> roleManager)
+                                ApplicationRoleManager roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -48,14 +49,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
       
         public ActionResult List()
         {
-            var users = _context.Users.Include(u => u.Roles).ToList();
+            var users = UserManager.Users.Include(u => u.Roles).ToList();
             Set_Flag_For_Admin();
             return View("List", users);
         }
 
         public ActionResult Details(string id)
         {
-            var user = _context.Users.Where(u => u.Id == id).FirstOrDefault();
+            var user = UserManager.Users.Where(u => u.Id == id).FirstOrDefault();
             Set_Flag_For_Admin();
             return View("Details", user);
         }
@@ -69,7 +70,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public ActionResult Edit(string id)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            var user = UserManager.Users.FirstOrDefault(u => u.Id == id);
 
             if (user == null)
                 return HttpNotFound();
@@ -129,13 +130,17 @@ namespace CleanArchTemplate.AccessControl.Controllers
             else if (ModelState.IsValid && !string.IsNullOrEmpty(viewModel.Id))
             {
 
-                var userInDB = _context.Users.FirstOrDefault(u => u.Id == viewModel.Id);
+                var userInDB = UserManager.Users.FirstOrDefault(u => u.Id == viewModel.Id);
 
                 userInDB.UserName = viewModel.Email;
                 userInDB.Email = viewModel.Email;
                 userInDB.DrivingLicense = viewModel.DrivingLicense;
                 userInDB.Phone = viewModel.Phone;
-                HandleUpdateResult(_context.SaveChanges());
+
+                result = await UserManager.UpdateAsync(userInDB);
+
+                //HandleUpdateResult(_context.SaveChanges());
+                HandleUpdateResult(result);
 
                 return List();
                 //return RedirectToAction("List", "Users", new { area = "AccessControl" });
@@ -147,11 +152,13 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         }
 
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            _context.Users.Remove(user);
-            HandleDeleteResult(_context.SaveChanges());
+            var userInDB = UserManager.Users.FirstOrDefault(u => u.Id == id);
+            //_context.Users.Remove(user);
+            IdentityResult result = await UserManager.UpdateAsync(userInDB);
+            HandleDeleteResult(result);
+            //HandleDeleteResult(_context.SaveChanges());
 
             return List();
             //return RedirectToAction("List", "Users", new { area = "AccessControl" });
@@ -192,12 +199,13 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
         }
 
+
         // Controller is not getting these properties by DI/IOC
-        private RoleManager<IdentityRole> RoleManager
+        private ApplicationRoleManager RoleManager
         {
             get
             {
-                return _roleManager ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(_context));
+                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
             }
             set
             {
@@ -205,13 +213,27 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
         }
 
+
+        // Controller is not getting these properties by DI/IOC
+        //private RoleManager<IdentityRole> RoleManager2
+        //{
+        //    get
+        //    {
+        //        return _roleManager2 ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(_context));
+        //    }
+        //    set
+        //    {
+        //        _roleManager = value;
+        //    }
+        //}
+
         public void GetApplicationUser()
         {
             var manager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var user = manager.FindById(User.Identity.GetUserId());
             //var user2 = UserManager.FindById(User.Identity.GetUserId());
 
-            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
+            //var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_context));
             ApplicationUser currentUser = UserManager.FindById(User.Identity.GetUserId());
 
             string ID = currentUser.Id;
