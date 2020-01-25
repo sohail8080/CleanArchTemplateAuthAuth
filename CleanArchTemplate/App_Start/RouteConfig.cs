@@ -41,6 +41,9 @@ namespace CleanArchTemplate
             //    namespaces: new[] { "CleanArchTemplate.Home.Presentation.Controllers" }
             //);
 
+            // Following Routing Rules Plus the Routing Rules defined inside the
+            // Arae Files both combine to result in Total Routing Rules.
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

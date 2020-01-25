@@ -10,7 +10,7 @@ namespace CleanArchTemplate
         // Here we configure the Global Level CCCs related to Controllers.
         // By default, Asp.net mvc, attach/associate CCCs to the Controllers
         // So there is an automatic execution of CCCs related to Controllers
-        // IN Asp.net mvc, CCCs are related to Action Filters and Controllers
+        // In Asp.net mvc, CCCs are related to Action Filters and Controllers
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             // For all Controller Actions, Show the Error.cshtml when 

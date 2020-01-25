@@ -15,6 +15,7 @@ using CleanArchTemplate.Common.UOW;
 
 namespace CleanArchTemplate
 {
+    // Expose a way to send messages (i.e. email/sms)
     public class EmailService : IIdentityMessageService
     {
         public Task SendAsync(IdentityMessage message)

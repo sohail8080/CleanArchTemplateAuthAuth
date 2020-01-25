@@ -24,8 +24,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // Two App. Service used for Account Management
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-        private RoleManager<IdentityRole> _roleManager;
-        ApplicationDbContext _context;
+        private ApplicationRoleManager _roleManager;
+        private RoleManager<IdentityRole> _roleManager2;        
+        private ApplicationDbContext _context;
 
         public RolesController()
         {
@@ -36,7 +37,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // Currently they are coded in the controller.
         public RolesController(ApplicationUserManager userManager, 
                                 ApplicationSignInManager signInManager,
-                                RoleManager<IdentityRole> roleManager)
+                                ApplicationRoleManager roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -130,7 +131,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
                 if (!RoleManager.RoleExists(viewModel.Name))
                 {
-                    HandleAddResult(await RoleManager.CreateAsync(new IdentityRole(viewModel.Name))); // Create Role in DB
+                    HandleAddResult(await RoleManager2.CreateAsync(new IdentityRole(viewModel.Name))); // Create Role in DB
                 }
                 else
                 {
@@ -198,16 +199,31 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
         }
 
+
         // Controller is not getting these properties by DI/IOC
-        private RoleManager<IdentityRole> RoleManager
+        private ApplicationRoleManager RoleManager
+        {
+            get
+            {
+                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
+            }
+            set
+            {
+                _roleManager = value;
+            }
+        }
+
+
+        // Controller is not getting these properties by DI/IOC
+        private RoleManager<IdentityRole> RoleManager2
         {
             get
             {                
-                return _roleManager ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+                return _roleManager2 ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
             }
              set
             {
-                _roleManager = value;
+                _roleManager2 = value;
             }
         }
 
