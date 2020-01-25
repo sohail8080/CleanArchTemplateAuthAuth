@@ -6,16 +6,19 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace CleanArchTemplate.AccessControl.Domain
 {
-    //public class ApplicationRole : IdentityRole
-    //{
-    //    public ApplicationRole() : base() { }
+    // Represents a Role entity in AccessControl Domain Model
 
-    //    public ApplicationRole(string name, string description) : base(name)
-    //    {
-    //        this.Description = description;
-    //    }
-    //    public virtual string Description { get; set; }
-    //}
+    public class ApplicationRole : IdentityRole
+    {
+        public ApplicationRole() : base() { }
+
+        //public ApplicationRole(string name, string description) : base(name)
+        //{
+        //    this.Description = description;
+        //}
+
+        // public virtual string Description { get; set; }
+    }
 
 
     //public class ApplicationRole : IdentityRole

@@ -36,6 +36,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
         // Controller is not getting these properties by DI/IOC
+        // In Startup.Auth.cs these Services are configured to stored in the 
+        // Owin Context. here the are get from context and used
+        // every request has its own copy of these objects.
+        // we can add others objects as well. currently three objects stored.
+        // ApplicationDbContext,  ApplicationUserManager, ApplicationSignInManager
         public ApplicationSignInManager SignInManager
         {
             get

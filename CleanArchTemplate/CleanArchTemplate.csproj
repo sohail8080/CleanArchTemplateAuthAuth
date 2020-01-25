@@ -170,6 +170,7 @@
   <ItemGroup>
     <Compile Include="App_Start\ExtendedRazorViewEngine.cs" />
     <Compile Include="App_Start\CustomViewEngine .cs" />
+    <Compile Include="App_Start\Identity\ApplicationRoleManager.cs" />
     <Compile Include="App_Start\Identity\ApplicationSignInManager.cs" />
     <Compile Include="App_Start\Identity\ApplicationUserManager.cs" />
     <Compile Include="App_Start\Identity\EmailService.cs" />

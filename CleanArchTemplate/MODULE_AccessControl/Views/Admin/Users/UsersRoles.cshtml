@@ -49,10 +49,10 @@
                 <td>@viewModel.RoleName</td>
                 @if (!viewModel.IsRoleAdded)
                 {
-                    <td>@Html.ActionLink("Add", "AddUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "addRoleLink" })</td>}
+                    <td>@Html.ActionLink("Add", "AddUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "addRoleLink", @class = "btn btn-primary" })</td>}
                 else
                 {
-                    <td>@Html.ActionLink("Remove", "RemoveUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "removeRoleLink" })</td>}
+                    <td>@Html.ActionLink("Remove", "RemoveUserRole", "UsersRoles", routeValues: new { userid = viewModel.UserId, rolename = viewModel.RoleName }, htmlAttributes: new { id = "removeRoleLink", @class = "btn btn-primary" })</td>}
             </tr>
 
         }

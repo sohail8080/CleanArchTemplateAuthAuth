@@ -14,6 +14,8 @@ using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
+    // When following attribute applied at global level, there is not 
+    // need to do UI based Athentication. But done for demo purpose
     [Authorize(Roles = RoleName.Admin)]
     public class UsersController : BaseController
     {
