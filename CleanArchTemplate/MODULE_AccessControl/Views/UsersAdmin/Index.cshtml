@@ -1,0 +1,36 @@
+﻿@model IEnumerable<CleanArchTemplate.AccessControl.Domain.ApplicationUser>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.UserName)
+        </th>
+        <th>
+
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", "UsersAdmin", routeValues: new { id = item.Id }, htmlAttributes: new { id = "userEditLink" }) |
+                @Html.ActionLink("Details", "Details", "UsersAdmin", routeValues: new { id = item.Id }, htmlAttributes: new { id = "userDetailsLink" }) |
+                @Html.ActionLink("Delete", "Delete", "UsersAdmin", routeValues: new { id = item.Id }, htmlAttributes: new { id = "userDeleteLink" })
+            </td>
+        </tr>
+    }
+
+</table>

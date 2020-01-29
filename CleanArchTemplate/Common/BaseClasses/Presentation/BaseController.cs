@@ -6,11 +6,15 @@ using Microsoft.AspNet.Identity.Owin;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
+using System.Linq;
 
 namespace CleanArchTemplate.Common.BaseClasses
 {
     public class BaseController : Controller
     {
+
+        #region Identity Manager Methods
+
         internal ApplicationSignInManager _signInManager;
         internal ApplicationUserManager _userManager;
         internal ApplicationRoleManager _roleManager;
@@ -22,8 +26,6 @@ namespace CleanArchTemplate.Common.BaseClasses
         // every request has its own copy of these objects.
         // we can add others objects as well. currently three objects stored.
         // ApplicationDbContext,  ApplicationUserManager, ApplicationSignInManager
-
-
 
         // Controller is not getting these properties by DI/IOC
         internal ApplicationSignInManager SignInManager
@@ -51,12 +53,16 @@ namespace CleanArchTemplate.Common.BaseClasses
             }
         }
 
-
         // Controller is not getting these properties by DI/IOC
         internal ApplicationRoleManager RoleManager
         {
             get
             {
+                // Create Role Method 1 by Calling RoleManager Service Asyn Method
+                //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+                //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+
+
                 return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
             }
             set
@@ -78,8 +84,12 @@ namespace CleanArchTemplate.Common.BaseClasses
             }
         }
 
-        IList<string> userRoles = null;
 
+        #endregion
+
+
+        #region Handle Result Methods
+     
         //protected void HandleResult(IdentityResult result, string successMessage)
         //{
         //    if (!result.Succeeded)
@@ -91,8 +101,6 @@ namespace CleanArchTemplate.Common.BaseClasses
         //        //TempData["Message"] = successMessage;
         //    }
         //}
-
-
 
 
         protected void HandleAddResult(IdentityResult result)
@@ -127,6 +135,47 @@ namespace CleanArchTemplate.Common.BaseClasses
             {
                 ViewBag.Message = "Error occurred while deleting Record(s)";
                 AddErrors(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) deleted successfully.";
+            }
+        }
+
+
+
+        protected void HandleAddResultOneError(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while adding Record(s)";
+                AddOneError(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) added successfully.";
+            }
+        }
+
+        protected void HandleUpdateResultOneError(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                AddOneError(result);
+            }
+            else
+            {
+                ViewBag.Message = "Record(s) updated successfully.";
+            }
+        }
+
+        protected void HandleDeleteResultOneError(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while deleting Record(s)";
+                AddOneError(result);
             }
             else
             {
@@ -173,7 +222,6 @@ namespace CleanArchTemplate.Common.BaseClasses
             }
         }
 
-
         protected void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -181,6 +229,19 @@ namespace CleanArchTemplate.Common.BaseClasses
                 ModelState.AddModelError("", error);
             }
         }
+
+
+        protected void AddOneError(IdentityResult result)
+        {
+
+            ModelState.AddModelError("", result.Errors.First());
+
+        }
+
+        #endregion
+
+
+        #region Restore Messages Methods
 
         protected void RestoreViewBagMessage()
         {
@@ -195,10 +256,15 @@ namespace CleanArchTemplate.Common.BaseClasses
                 ViewBag.Message = TempData["Message"].ToString();
         }
 
+        #endregion
+
+
+        #region Set Flags Methods
+
         protected void Set_Flag_For_Admin()
         {
             bool isAdminUser = false;
-            var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            //var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             //var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
             //var signInManager = HttpContext.GetOwinContext().Get<ApplicationSignInManager>();            
             //var roleManager = Request.GetOwinContext().Get<RoleManager<IdentityRole>>();
@@ -206,7 +272,7 @@ namespace CleanArchTemplate.Common.BaseClasses
             var user = User.Identity.GetUserId();
             if (user != null)
             {
-                var userRoles = userManager.GetRoles(User.Identity.GetUserId());
+                var userRoles = UserManager.GetRoles(User.Identity.GetUserId());
                 if (userRoles == null | userRoles.Count <= 0)
                 { isAdminUser = false; }
 
@@ -222,13 +288,18 @@ namespace CleanArchTemplate.Common.BaseClasses
 
         }
 
-
         protected void Set_Flag_For_Admin2()
         {
             // this ViewBag value will be accessible in View & Child Views
             ViewBag.isAdminUser = Is_User_In_Role2(RoleName.Admin);
         }
 
+        #endregion
+
+
+        #region Helper Methods
+
+        IList<string> userRoles = null;
 
         protected IList<string> Get_User_Roles()
         {
@@ -238,8 +309,8 @@ namespace CleanArchTemplate.Common.BaseClasses
             if (User.Identity.GetUserId() == null)
                 return null;
 
-            var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            userRoles = userManager.GetRoles(User.Identity.GetUserId());
+            //var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            userRoles = UserManager.GetRoles(User.Identity.GetUserId());
 
             return userRoles;
 
@@ -253,7 +324,7 @@ namespace CleanArchTemplate.Common.BaseClasses
 
         protected bool Is_User_In_Role(string role)
         {
-            var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            //var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             //var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
             //var signInManager = HttpContext.GetOwinContext().Get<ApplicationSignInManager>();            
             //var roleManager = Request.GetOwinContext().Get<RoleManager<IdentityRole>>();
@@ -261,7 +332,7 @@ namespace CleanArchTemplate.Common.BaseClasses
             var user = User.Identity.GetUserId();
             if (user != null)
             {
-                return userManager.IsInRole(User.Identity.GetUserId(), role);
+                return UserManager.IsInRole(User.Identity.GetUserId(), role);
             }
 
             return false;
@@ -299,11 +370,11 @@ namespace CleanArchTemplate.Common.BaseClasses
             // Find place in MVC Framework, Code that exectues only once.
 
             var resultFlag = false;
-            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-            var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-            if (!roleManager.RoleExists("Customer"))
+            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+            if (!RoleManager.RoleExists("Customer"))
             {
-                var result = roleManager.Create(new IdentityRole("Customer")); // Create Role in DB                        
+                var result = RoleManager.Create(new IdentityRole("Customer")); // Create Role in DB                        
                 if (result.Succeeded)
                     resultFlag = true;
                 else
@@ -314,6 +385,9 @@ namespace CleanArchTemplate.Common.BaseClasses
             return resultFlag;
 
         }
+
+        #endregion
+
 
     }
 }

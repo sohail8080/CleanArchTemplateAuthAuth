@@ -1,18 +1,48 @@
 ﻿@model Microsoft.AspNet.Identity.EntityFramework.IdentityRole
 
 @{
-    ViewBag.Title = "Role Details";    
+    ViewBag.Title = "Application Role Details";
 }
 
-
 <h2>@ViewBag.Title</h2>
+<hr />
 
-<h4>Details of a Role added to the application.</h4>
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
 
-@if (Model != null)
-{<p> @Model.Name </p>}
-else
-{ <p>Role Not Found</p>}
+<h4>List of users in <b>@Model.Name</b> role </h4>
 
-@Html.ActionLink("Back", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
+@if (ViewBag.UserCount == 0)
+{
+    <hr />
+    <p>No users found in this role.</p>
+}
+    <table class="table table-bordered table-hover">
+
+        <thead>
+            <tr>
+                <th>User Name</th>
+            </tr>
+        </thead>
+
+        @foreach (var item in ViewBag.Users)
+        {
+            <tr>
+                <td>
+                    @item.UserName
+                </td>
+            </tr>
+        }
+    </table>
+
+@Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = @Model.Id }, htmlAttributes: new { id = "roledetailsLink", @class = "btn btn-primary" })
+@Html.ActionLink("Back to List", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
 

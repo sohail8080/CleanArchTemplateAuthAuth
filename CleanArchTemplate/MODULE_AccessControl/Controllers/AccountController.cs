@@ -22,6 +22,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public AccountController()
         {
+
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
@@ -42,6 +43,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         //
         // GET: /Account/Login
+        [HttpGet]
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -61,7 +63,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return View("Login", model);
             }
 
-            // This doesn't count login failures towards account lockout
+            // This doesn't count login failures towards account lockout only two factor authentication
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
@@ -84,11 +86,21 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
         {
-            // Require that the user has already logged in via username/password or external login
+            // Require that the user has already logged in via username/password or 
+            //external login
             if (!await SignInManager.HasBeenVerifiedAsync())
             {
                 return View("Error");
             }
+
+            // Copied from Indenity Sample, do not know what following code does
+            //var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
+            //if (user != null)
+            //{
+                //ViewBag.Status = "For DEMO purposes the current " + provider + " code is: " + await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+            //}
+
+
             return View("VerifyCode", new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
@@ -188,6 +200,35 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("Register", model);
         }
 
+
+        //Sohail: Following Method is used for Email Confirmation
+        // Method is taken form Identity Sample
+        // POST: /Account/Register
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Register2(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var result = await UserManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    var code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    ViewBag.Link = callbackUrl;
+                    return View("DisplayEmail");
+                }
+                AddErrors(result);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+
         //
         // GET: /Account/ConfirmEmail
         [AllowAnonymous]
@@ -237,8 +278,38 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("ForgotPassword", model);
         }
 
+
+        // Taken from Identity Sample, use for Email Confirmation
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ForgotPassword2(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByNameAsync(model.Email);
+                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                var code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
+                ViewBag.Link = callbackUrl;
+                return View("ForgotPasswordConfirmation");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+
         //
         // GET: /Account/ForgotPasswordConfirmation
+        [HttpGet]
         [AllowAnonymous]
         public ActionResult ForgotPasswordConfirmation()
         {
@@ -453,14 +524,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             get
             {
                 return HttpContext.GetOwinContext().Authentication;
-            }
-        }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
             }
         }
 

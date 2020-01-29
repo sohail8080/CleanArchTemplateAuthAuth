@@ -12,7 +12,24 @@ namespace CleanArchTemplate
 {
     public partial class Startup
     {
-        // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
+
+        //The OWIN startup class (Startup.cs ) is called when the app starts and 
+        //invokes the ConfigureAuth method in App_Start\Startup.Auth.cs, 
+        //which configures the OWIN pipeline and initializes ASP.NET Identity.
+        //Examine the ConfigureAuth method. Each CreatePerOwinContext call 
+        //registers a callback (saved in the OwinContext) that will be called 
+        //once per request to create an instance of the specified type.
+        //You can set a break point in the constructor and Create method of 
+        //each type(ApplicationDbContext, ApplicationUserManager) and 
+        //verify they are called on each request.A instance of ApplicationDbContext 
+        //and ApplicationUserManager is stored in the OWIN context, which can 
+        //be accessed throughout the application.ASP.NET Identity hooks into the 
+        //OWIN pipeline through cookie middleware. For more information, 
+        //see Per request lifetime management for UserManager class in 
+        //ASP.NET Identity.
+
+        // For more information on configuring authentication, 
+        // please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and signin manager to use a single instance per request

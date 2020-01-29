@@ -63,6 +63,17 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("Index", model);
         }
 
+        // Coped from Indenity, I do not know where used
+        // GET: /Account/RemoveLogin
+        [HttpGet]
+        public ActionResult RemoveLogin()
+        {
+            var linkedAccounts = UserManager.GetLogins(User.Identity.GetUserId());
+            ViewBag.ShowRemoveButton = HasPassword() || linkedAccounts.Count > 1;
+            return View(linkedAccounts);
+        }
+
+
         //
         // POST: /Manage/RemoveLogin
         [HttpPost]
@@ -118,6 +129,29 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
         }
 
+
+        // Coped from Indentity sample i do not know used where
+        // POST: /Manage/RememberBrowser
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RememberBrowser()
+        {
+            var rememberBrowserIdentity = AuthenticationManager.CreateTwoFactorRememberBrowserIdentity(User.Identity.GetUserId());
+            AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = true }, rememberBrowserIdentity);
+            return RedirectToAction("Index", "Manage");
+        }
+
+        // Coped from Indentity sample i do not know used where
+        // POST: /Manage/ForgetBrowser
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ForgetBrowser()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
+            return RedirectToAction("Index", "Manage");
+        }
+
+
         //
         // POST: /Manage/EnableTwoFactorAuthentication
         [HttpPost]
@@ -150,12 +184,27 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         //
         // GET: /Manage/VerifyPhoneNumber
+        [HttpGet]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
             // Send an SMS through the SMS provider to verify the phone number
             return phoneNumber == null ? View("Error") : View("VerifyPhoneNumber", new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
         }
+
+
+        //
+        // GET: /Account/VerifyPhoneNumber
+        [HttpGet]
+        public async Task<ActionResult> VerifyPhoneNumber2(string phoneNumber)
+        {
+            // This code allows you exercise the flow without actually sending codes
+            // For production use please register a SMS provider in IdentityConfig and generate a code here.
+            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
+            ViewBag.Status = "For DEMO purposes only, the current code is " + code;
+            return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
+        }
+
 
         //
         // POST: /Manage/VerifyPhoneNumber
@@ -330,14 +379,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             get
             {
                 return HttpContext.GetOwinContext().Authentication;
-            }
-        }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
             }
         }
 

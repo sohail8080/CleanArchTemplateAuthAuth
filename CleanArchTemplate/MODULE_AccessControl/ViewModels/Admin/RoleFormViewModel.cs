@@ -11,13 +11,10 @@ namespace CleanArchTemplate.AccessControl.ViewModels
     {
         public string Id { get; set; }
 
-
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 3)]
         [Display(Name = "Role Name")]
         public string Name { get; set; }
-
-
 
         public string Title
         {

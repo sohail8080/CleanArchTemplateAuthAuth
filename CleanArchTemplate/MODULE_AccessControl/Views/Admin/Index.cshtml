@@ -21,6 +21,16 @@
         <div class="col-md-10">
             @Html.ActionLink("Manage Users", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink", @class = "btn btn-primary" })
         </div>
+
+
+        <div class="col-md-2">
+            @Html.ActionLink("Manage Roles 2", "Index", "RolesAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink2", @class = "btn btn-primary" })
+        </div>
+        <div class="col-md-10">
+            @Html.ActionLink("Manage Users 2", "Index", "UsersAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink2", @class = "btn btn-primary" })
+        </div>
+
+
     </div>
 
 }

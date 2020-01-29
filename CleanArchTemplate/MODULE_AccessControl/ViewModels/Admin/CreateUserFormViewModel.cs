@@ -1,16 +1,17 @@
 ﻿using CleanArchTemplate.AccessControl.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
-    public class UserFormViewModel
+    public class CreateUserFormViewModel
     {
 
-        public string Id { get; set; }
+        //public string Id { get; set; }
 
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
@@ -23,7 +24,7 @@ namespace CleanArchTemplate.AccessControl.ViewModels
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
         // New Properties Added to the Application user
@@ -43,25 +44,28 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         {
             get
             {
-                return Id != "" ? "Edit User" : "New User";
+                return "New User";
             }
         }
 
-        public UserFormViewModel()
+        public CreateUserFormViewModel()
         {
-            Id = "";
+            //Id = "";
         }
 
-        public UserFormViewModel(ApplicationUser user)
+        public CreateUserFormViewModel(ApplicationUser user)
         {
-            Id = user.Id;
+            //Id = user.Id;
             Email = user.Email;
             DrivingLicense = user.DrivingLicense;// New Properties
             Phone = user.Phone; // New Properties
 
         }
 
+        //public IEnumerable<SelectListItem> SelectedRolesList { get; set; }
 
+        public SelectList AllRolesList { get; set; }
+        
 
     }
 }

@@ -6,6 +6,7 @@ using System.Web;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
+    // Not in Use
     //public class CreateRoleViewModel
     //{
     //    [Required]

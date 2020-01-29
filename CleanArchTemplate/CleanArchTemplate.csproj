@@ -18,7 +18,8 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>
+    </IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -179,6 +180,7 @@
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\AdminController.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\UserAdminController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersRolesController.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationRole.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationUser.cs" />
@@ -196,9 +198,10 @@
     <Compile Include="MODULE_AccessControl\Persistence\UOW\ManageDbContext.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\RolesController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersController.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\EditUserFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleName.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleFormViewModel.cs" />
-    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserFormViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateUserFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\UsersRolesViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ConfigureTwoFactorViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateRoleViewModel.cs" />
@@ -209,6 +212,7 @@
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\FactorViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ManageLoginsViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\IndexViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\UsersAdmin\EditUserViewModel.cs" />
     <Compile Include="MODULE_Home\Domain\Models\Genre.cs" />
     <Compile Include="MODULE_Home\Persistence\UOW\HomeDbContext.cs" />
     <Compile Include="MODULE_Home\HomeAreaRegistration.cs" />
@@ -260,8 +264,17 @@
     <Content Include="MODULE_AccessControl\Views\Admin\Index.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Details.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Details.cshtml" />
-    <Content Include="MODULE_AccessControl\Views\Admin\Users\UserForm.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\EditUserForm.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\UsersRoles.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Account\DisplayEmail.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\UsersAdmin\Create.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\UsersAdmin\Delete.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\UsersAdmin\Details.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\UsersAdmin\Edit.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\UsersAdmin\Index.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Roles\Delete.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\CreateUserForm.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\Delete.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

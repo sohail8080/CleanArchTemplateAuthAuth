@@ -15,6 +15,13 @@
     {
         @ViewBag.Message
     }
+
+    @*
+    @Html.ValidationSummary(true)
+    true to have the summary display model-level errors only, or false to have the
+    Summary display all errors.
+    *@
+
     @Html.ValidationSummary("", new { @class = "text-danger" })
 
 

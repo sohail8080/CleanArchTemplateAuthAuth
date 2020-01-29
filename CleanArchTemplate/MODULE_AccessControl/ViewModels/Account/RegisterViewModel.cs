@@ -6,7 +6,7 @@ namespace CleanArchTemplate.AccessControl.ViewModels
     public class RegisterViewModel
     {
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
@@ -24,9 +24,11 @@ namespace CleanArchTemplate.AccessControl.ViewModels
 
         // New Properties Added to the Application user
 
+
         [Required]
         [Display(Name = "Driving License")]
         public string DrivingLicense { get; set; }
+
 
         [Required]
         [StringLength(50)]

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
+﻿@using CleanArchTemplate.Common.UOW
+
+@model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
 @{
     ViewBag.Title = "Add Role";
     bool isAdminUser = false;
@@ -35,20 +37,41 @@
         <tr>
             <th>Roles</th>
             <th>Details</th>
+            <th>Users</th>
             <th>Edit</th>
             <th>Delete</th>
+            <th>2 Step Delete</th>
+            <th>Add Users</th>
         </tr>
     </thead>
     <tbody>
 
         @foreach (var role in Model)
         {
-            <tr>
-                <td>  @role.Name</td>
-                <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
-                <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roledetailsLink" }) </td>
-                <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
-            </tr>
+        <tr>
+            <td>  @role.Name</td>
+            <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLink" }) </td>
+
+            <td>
+                @if (role.Users != null && role.Users.Count >= 1)
+                {
+                    var roleUserIds = role.Users;
+                    string userlist = string.Empty;
+                    foreach (var roleUserId in roleUserIds)
+                    {
+                        var user = new ApplicationDbContext().Users.FirstOrDefault(u => u.Id == roleUserId.UserId);
+                        userlist = userlist + user.UserName + ", ";
+                    }
+
+                    @Html.ActionLink(userlist, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLinks" })
+                }
+            </td>
+
+            <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleEditLink" }) </td>
+            <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+            <td> @Html.ActionLink("Delete", "Delete2", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+            <td> @Html.ActionLink("Add Users", "List", "RolesUsers", routeValues: new { userid = role.Id }, htmlAttributes: new { id = "roleDeleteLink" })</td>
+        </tr>
 
         }
 

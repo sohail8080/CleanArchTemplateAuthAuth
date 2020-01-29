@@ -20,7 +20,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
     [Authorize(Roles = RoleName.Admin)]
     public class UsersRolesController : BaseController
     {
-
         public UsersRolesController()
         {
             //_context = new ApplicationDbContext();
@@ -38,7 +37,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
         }
-
 
         public ActionResult List(string userid)
         {
@@ -60,7 +58,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         }
 
-
         public ActionResult AddUserRole(string userid, string rolename)
         {
             IdentityResult result;
@@ -78,7 +75,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //return RedirectToAction("List", "UsersRoles", routeValues: new { area = "AccessControl", userid = userid, rolename = rolename });
 
         }
-
 
         public ActionResult RemoveUserRole(string userid, string rolename)
         {

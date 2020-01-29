@@ -1,13 +1,14 @@
 ﻿@model CleanArchTemplate.AccessControl.Domain.ApplicationUser
 
 @{
-    ViewBag.Title = "Application User Details";
+    ViewBag.Title = "Details";
 }
 
-<h2>@ViewBag.Title</h2>
-<hr />
+<h2>Details.</h2>
 
 <div>
+    <h4>User</h4>
+    <hr />
     <dl class="dl-horizontal">
         <dt>
             @Html.DisplayNameFor(model => model.UserName)
@@ -18,15 +19,16 @@
     </dl>
 </div>
 
-<h4>List of roles for <b>@Model.UserName</b> user</h4>
 
+
+<h4>List of roles for this user</h4>
 @if (ViewBag.RoleNames.Count == 0)
 {
     <hr />
     <p>No roles found for this user.</p>
 }
 
-<table class="table table-bordered table-hover">
+<table class="table">
 
     @foreach (var item in ViewBag.RoleNames)
     {
@@ -38,6 +40,10 @@
     }
 </table>
 
-@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { area = "AccessControl" , id = Model.Id }, htmlAttributes: new { id = "userEditLink", @class = "btn btn-primary" })
-@Html.ActionLink("Back to List", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listUserLink", @class = "btn btn-primary" })
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+
 
