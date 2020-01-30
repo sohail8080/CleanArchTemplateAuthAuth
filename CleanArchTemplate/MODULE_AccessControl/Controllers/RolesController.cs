@@ -53,7 +53,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //var roles = await RoleManager.Roles.ToListAsync();
             var roles = RoleManager.Roles.Include(u => u.Users).ToList();
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("List", roles);
 
             // Following we get All Roles by EF Repo
@@ -99,7 +99,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         public ActionResult Create()
         {
             var viewModel = new RoleFormViewModel();
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("RoleForm", viewModel);
         }
 
@@ -120,7 +120,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             { return HttpNotFound(); }
 
             var viewModel = new RoleFormViewModel(role);
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("RoleForm", viewModel);
         }
 

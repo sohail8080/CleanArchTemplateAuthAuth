@@ -1,41 +1,45 @@
-﻿@{
-    ViewBag.Title = "Administration Home Page";    
-    bool isAdminUser = false;
-    if (ViewBag.isAdminUser != null)
-    { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
-}
+﻿@using Microsoft.AspNet.Identity.Owin;
+@using Microsoft.AspNet.Identity;
+@using System.Web;
 
-@if (isAdminUser)
+@if (!string.IsNullOrEmpty(User.Identity.GetUserId()))
 {
-    <div class="form-group">
-        <div class="col-md-12">
-            <h2>Welcome to Administration Panel. You can do following administration tasks.</h2>
-        </div>
-    </div>
-
-
-    <div class="form-group">
-        <div class="col-md-2">
-            @Html.ActionLink("Manage Roles", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink", @class = "btn btn-primary" })
-        </div>
-        <div class="col-md-10">
-            @Html.ActionLink("Manage Users", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink", @class = "btn btn-primary" })
+    if (this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>()
+        .IsInRole(User.Identity.GetUserId(), "Admin"))
+    {
+        <div class="form-group">
+            <div class="col-md-12">
+                <h2>Welcome to Administration Panel. You can do following administration tasks.</h2>
+            </div>
         </div>
 
 
-        <div class="col-md-2">
-            @Html.ActionLink("Manage Roles 2", "Index", "RolesAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink2", @class = "btn btn-primary" })
+        <div class="form-group">
+            <div class="col-md-2">
+                @Html.ActionLink("Manage Roles", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink", @class = "btn btn-primary" })
+            </div>
+            <div class="col-md-10">
+                @Html.ActionLink("Manage Users", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink", @class = "btn btn-primary" })
+            </div>
+
+
+            <div class="col-md-2">
+                @Html.ActionLink("Manage Roles 2", "Index", "RolesAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageRolesLink2", @class = "btn btn-primary" })
+            </div>
+            <div class="col-md-10">
+                @Html.ActionLink("Manage Users 2", "Index", "UsersAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink2", @class = "btn btn-primary" })
+            </div>
+
+
         </div>
-        <div class="col-md-10">
-            @Html.ActionLink("Manage Users 2", "Index", "UsersAdmin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink2", @class = "btn btn-primary" })
-        </div>
 
-
-    </div>
-
+    }
+    else
+    {
+        <h2>  You do not have sufficient privileges. </h2>
+    }
 }
 else
 {
-    <h2>  <strong>@ViewBag.Name</strong> , You do not have sufficient privileges. </h2>
+    <h2>  You do not have sufficient privileges. </h2>
 }
-

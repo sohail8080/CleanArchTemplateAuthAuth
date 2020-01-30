@@ -1,11 +1,7 @@
 ﻿@using Microsoft.AspNet.Identity.Owin;
-@using Microsoft.AspNet.Identity.EntityFramework;
 @using Microsoft.AspNet.Identity;
 @using System.Web;
 
-@model bool 
-
-}
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -22,9 +18,14 @@
                 <li>@Html.ActionLink("About", "About", "Home", routeValues: new { area = "Home" }, htmlAttributes: new { id = "aboutLink" })</li>
                 <li>@Html.ActionLink("Contact", "Contact", "Home", routeValues: new { area = "Home" }, htmlAttributes: new { id = "contactLink" })</li>
 
-                @if (Model)
+
+                @if (!string.IsNullOrEmpty(User.Identity.GetUserId()))
                 {
-                    <li>@Html.ActionLink("Admin", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "adminLink" })</li>
+                    if (this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>()
+                        .IsInRole(User.Identity.GetUserId(), "Admin"))
+                    {
+                        <li>@Html.ActionLink("Admin", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "adminLink" })</li>
+                    }
                 }
 
             </ul>

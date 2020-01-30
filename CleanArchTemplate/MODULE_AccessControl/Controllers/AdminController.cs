@@ -36,7 +36,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         public ActionResult Index()
         {
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("Index");
         }
 

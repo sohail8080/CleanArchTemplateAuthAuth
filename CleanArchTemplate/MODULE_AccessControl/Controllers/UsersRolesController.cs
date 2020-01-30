@@ -53,7 +53,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //RestoreViewBagMessage();
 
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View(@"~\MODULE_AccessControl\Views\Admin\Users\UsersRoles.cshtml", list);
 
         }

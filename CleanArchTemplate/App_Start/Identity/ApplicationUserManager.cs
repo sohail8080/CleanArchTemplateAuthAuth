@@ -83,6 +83,7 @@ namespace CleanArchTemplate
 
             // Configure validation logic for passwords
             // What type of password policy application will have
+            // Password Policy can be configured here.
             manager.PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
@@ -90,6 +91,7 @@ namespace CleanArchTemplate
                 RequireDigit = true,
                 RequireLowercase = true,
                 RequireUppercase = true,
+
             };
 
             // Configure user lockout defaults

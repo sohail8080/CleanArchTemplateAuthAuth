@@ -258,7 +258,7 @@ namespace CleanArchTemplate.Common.BaseClasses
 
         #endregion
 
-
+        /*
         #region Set Flags Methods
 
         protected void Set_Flag_For_Admin()
@@ -306,7 +306,7 @@ namespace CleanArchTemplate.Common.BaseClasses
             if (userRoles != null)
                 return userRoles;
 
-            if (User.Identity.GetUserId() == null)
+            if (string.IsNullOrEmpty(User.Identity.GetUserId()))
                 return null;
 
             //var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
@@ -322,17 +322,18 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
 
-        protected bool Is_User_In_Role(string role)
+        protected bool Is_User_In_Role(string roleName)
         {
             //var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             //var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
             //var signInManager = HttpContext.GetOwinContext().Get<ApplicationSignInManager>();            
             //var roleManager = Request.GetOwinContext().Get<RoleManager<IdentityRole>>();
 
-            var user = User.Identity.GetUserId();
-            if (user != null)
+            var userId = User.Identity.GetUserId();
+
+            if (string.IsNullOrEmpty(userId))
             {
-                return UserManager.IsInRole(User.Identity.GetUserId(), role);
+                return UserManager.IsInRole(userId, roleName);
             }
 
             return false;
@@ -387,7 +388,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         }
 
         #endregion
-
+    */
 
     }
 }

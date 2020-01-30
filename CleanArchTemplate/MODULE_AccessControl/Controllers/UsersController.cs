@@ -48,7 +48,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             //var users =  await UserManager.Users.ToListAsync()
             var users = UserManager.Users.Include(u => u.Roles).ToList();
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("List", users);
         }
 
@@ -66,7 +66,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             ViewBag.RoleNames = await UserManager.GetRolesAsync(user.Id);
 
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
 
             return View("Details", user);
         }
@@ -77,7 +77,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             var viewModel = new CreateUserFormViewModel();
             viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("CreateUserForm", viewModel);
         }
 
@@ -154,7 +154,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                         {
                             // No Errors occurs while adding Roles of New User
                             var users2 = UserManager.Users.Include(u => u.Roles).ToList();
-                            Set_Flag_For_Admin();
+                            //sohail Set_Flag_For_Admin();
                             ViewBag.Message = "Record(s) updated successfully.";
                             return View("List", users2);
 
@@ -169,7 +169,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     // Put All Roles List in the ViewBag
                     //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
                     viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                    Set_Flag_For_Admin();
+                    //sohail Set_Flag_For_Admin();
                     return View("CreateUserForm", viewModel);
                 }
 
@@ -177,7 +177,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // If Both User & it Roles are Added Successfully
                 // Show the Users List
                 var users = UserManager.Users.Include(u => u.Roles).ToList();
-                Set_Flag_For_Admin();
+                //sohail Set_Flag_For_Admin();
                 ViewBag.Message = "Record(s) addded successfully.";
                 return View("List", users);
             }
@@ -192,7 +192,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
                 ModelState.AddModelError("", "Something failed.");
                 viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                Set_Flag_For_Admin();
+                //sohail Set_Flag_For_Admin();
                 // Show again the Create View, Ref Data Filled
                 return View("CreateUserForm", viewModel);
             }
@@ -232,7 +232,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 })
             };
 
-            Set_Flag_For_Admin();
+            //sohail Set_Flag_For_Admin();
             return View("EditUserForm", viewModel);
         }
 
@@ -340,7 +340,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // User Added, Role Added, Role Removed Successfully. Show List Role
 
                 var users = UserManager.Users.Include(u => u.Roles).ToList();
-                Set_Flag_For_Admin();
+                //sohail Set_Flag_For_Admin();
                 ViewBag.Message = "Record(s) updated successfully.";
                 return View("List", users);
             }

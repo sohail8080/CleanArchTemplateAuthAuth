@@ -109,6 +109,8 @@ namespace CleanArchTemplate
             // REMEMBER THAT 2FA HAS BEEN DONE IN THE CLIENT BROWSER COOKIE
             app.UseTwoFactorRememberBrowserCookie(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
 
+
+
             // Uncomment the following lines to enable logging in with third party login providers
             //app.UseMicrosoftAccountAuthentication(
             //    clientId: "",
