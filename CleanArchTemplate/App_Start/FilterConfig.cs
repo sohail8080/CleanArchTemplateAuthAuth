@@ -22,6 +22,11 @@ namespace CleanArchTemplate
             // Level, where we need to give access, we will give this explicity.
             // Check out the Account and Manage Contorllers for this settings.
             filters.Add(new AuthorizeAttribute());
+
+
+            //     Represents an attribute that forces an unsecured HTTP request to be re-sent over
+            //     HTTPS.
+            //filters.Add(new RequireHttpsAttribute());
         }
     }
 }

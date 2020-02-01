@@ -53,7 +53,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //RestoreViewBagMessage();
 
-            //sohail Set_Flag_For_Admin();
+            
             return View(@"~\MODULE_AccessControl\Views\Admin\Users\UsersRoles.cshtml", list);
 
         }
@@ -67,7 +67,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             else
                 return HttpNotFound("User or Role not found.");
 
-            HandleAddResult(result);
+            //HandleAddResult(result);
 
             return List(userid);
 
@@ -85,7 +85,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             else
                 return HttpNotFound("User or Role not found.");
 
-            HandleDeleteResult(result);
+            //HandleDeleteResult(result);
 
             return List(userid);
 

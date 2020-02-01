@@ -103,124 +103,124 @@ namespace CleanArchTemplate.Common.BaseClasses
         //}
 
 
-        protected void HandleAddResult(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while adding Record(s)";
-                AddErrors(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) added successfully.";
-            }
-        }
+        //protected void HandleAddResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
 
-        protected void HandleUpdateResult(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while updating Record(s)";
-                AddErrors(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) updated successfully.";
-            }
-        }
+        //protected void HandleUpdateResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
 
-        protected void HandleDeleteResult(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while deleting Record(s)";
-                AddErrors(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) deleted successfully.";
-            }
-        }
-
-
-
-        protected void HandleAddResultOneError(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while adding Record(s)";
-                AddOneError(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) added successfully.";
-            }
-        }
-
-        protected void HandleUpdateResultOneError(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while updating Record(s)";
-                AddOneError(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) updated successfully.";
-            }
-        }
-
-        protected void HandleDeleteResultOneError(IdentityResult result)
-        {
-            if (!result.Succeeded)
-            {
-                ViewBag.Message = "Error occurred while deleting Record(s)";
-                AddOneError(result);
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) deleted successfully.";
-            }
-        }
+        //protected void HandleDeleteResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
 
 
 
+        //protected void HandleAddResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
 
-        protected void HandleAddResult(int result)
-        {
-            if (result <= 0)
-            {
-                ViewBag.Message = "Error occurred while adding Record(s)";
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) added successfully.";
-            }
-        }
+        //protected void HandleUpdateResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
 
-        protected void HandleUpdateResult(int result)
-        {
-            if (result <= 0)
-            {
-                ViewBag.Message = "Error occurred while updating Record(s)";
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) updated successfully.";
-            }
-        }
+        //protected void HandleDeleteResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
 
-        protected void HandleDeleteResult(int result)
-        {
-            if (result <= 0)
-            {
-                ViewBag.Message = "Error occurred while deleting Record(s)";
-            }
-            else
-            {
-                ViewBag.Message = "Record(s) deleted successfully.";
-            }
-        }
+
+
+
+        //protected void HandleAddResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
+
+        //protected void HandleUpdateResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
+
+        //protected void HandleDeleteResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
 
         protected void AddErrors(IdentityResult result)
         {

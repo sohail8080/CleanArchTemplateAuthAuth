@@ -68,8 +68,22 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
-                case SignInStatus.Success: 
-                    return RedirectToLocal(returnUrl);
+                // defaults routing rule define in the RouteConfig.cs
+                // is the Controller Action executed after the successfull
+                // login if there is not return url. it should be explicit here
+                // Check URL is local Url.IsLocalUrl(returnUrl)
+
+                case SignInStatus.Success:
+                    if (string.IsNullOrEmpty(returnUrl))
+                    { return RedirectToAction("Index", "Home", new { area = "Home" });}
+                    else
+                    {
+                        if (Url.IsLocalUrl(returnUrl))
+                        { return RedirectToLocal(returnUrl); }
+                        else // if RetURL is non-local, do not throw exception, but send to Home Page
+                        { return RedirectToAction("Index", "Home", new { area = "Home" }); }
+
+                    }
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -97,7 +111,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
             //if (user != null)
             //{
-                //ViewBag.Status = "For DEMO purposes the current " + provider + " code is: " + await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+            //ViewBag.Status = "For DEMO purposes the current " + provider + " code is: " + await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
             //}
 
 
@@ -120,7 +134,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -142,13 +156,35 @@ namespace CleanArchTemplate.AccessControl.Controllers
             return View("Register");
         }
 
+        //[HttpGet]
+        //[HttpPost]
+        //[AcceptVerbs("Get", "Post")]
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> IsEmailInUse(string email)
+        {
+            //Console.WriteLine("called");
+            var user = await UserManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return Json(true, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                //return Json($"Email {email} is already in use.", JsonRequestBehavior.AllowGet);
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         //
         // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
-        {            
+        {
             // Get Data as View Model from View, Validate ViewModel
             if (ModelState.IsValid)
             {
@@ -179,8 +215,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     // Immediate Sign In, but need Email Confirmation First, comment below line
                     // and uncomment following 3 lines.
                     // Following AS Signin the User after makeing enttry to DB
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                     
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
                     // For more information on how to enable account confirmation and 
                     //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
@@ -454,7 +490,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser {
+                var user = new ApplicationUser
+                {
                     UserName = model.Email,
                     Email = model.Email,
                     DrivingLicense = model.DrivingLicense,// New Properties

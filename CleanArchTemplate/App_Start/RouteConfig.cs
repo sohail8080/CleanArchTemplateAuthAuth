@@ -43,6 +43,10 @@ namespace CleanArchTemplate
 
             // Following Routing Rules Plus the Routing Rules defined inside the
             // Arae Files both combine to result in Total Routing Rules.
+            // I think following Rules come last in the stack.
+            // defaults is the Controller Action executed after the successfull
+            // login and there is not return url
+            // defaults is now overrided inside the AccController in the Login()
 
             routes.MapRoute(
                 name: "Default",

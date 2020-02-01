@@ -18,7 +18,6 @@
                 <li>@Html.ActionLink("About", "About", "Home", routeValues: new { area = "Home" }, htmlAttributes: new { id = "aboutLink" })</li>
                 <li>@Html.ActionLink("Contact", "Contact", "Home", routeValues: new { area = "Home" }, htmlAttributes: new { id = "contactLink" })</li>
 
-
                 @if (!string.IsNullOrEmpty(User.Identity.GetUserId()))
                 {
                     if (this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>()

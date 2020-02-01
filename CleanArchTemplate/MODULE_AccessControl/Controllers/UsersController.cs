@@ -48,7 +48,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             //var users =  await UserManager.Users.ToListAsync()
             var users = UserManager.Users.Include(u => u.Roles).ToList();
-            //sohail Set_Flag_For_Admin();
+           
             return View("List", users);
         }
 
@@ -64,10 +64,15 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var user = UserManager.Users.Where(u => u.Id == id).FirstOrDefault();
             var user = await UserManager.FindByIdAsync(id);
 
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
+
             ViewBag.RoleNames = await UserManager.GetRolesAsync(user.Id);
-
-            //sohail Set_Flag_For_Admin();
-
+            
             return View("Details", user);
         }
 
@@ -77,7 +82,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             var viewModel = new CreateUserFormViewModel();
             viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-            //sohail Set_Flag_For_Admin();
+            
             return View("CreateUserForm", viewModel);
         }
 
@@ -130,7 +135,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
                 result = await UserManager.CreateAsync(user, viewModel.Password);
 
-                HandleAddResultOneError(result);
+                //HandleAddResultOneError(result);
 
                 //Add Seleted Roles to the New User 
                 if (result.Succeeded)
@@ -153,10 +158,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
                         else
                         {
                             // No Errors occurs while adding Roles of New User
-                            var users2 = UserManager.Users.Include(u => u.Roles).ToList();
-                            //sohail Set_Flag_For_Admin();
+                            //var users2 = UserManager.Users.Include(u => u.Roles).ToList();
+                            
                             ViewBag.Message = "Record(s) updated successfully.";
-                            return View("List", users2);
+                            return List();
+                            //return View("List", users2);
 
                         }
                     }
@@ -169,17 +175,18 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     // Put All Roles List in the ViewBag
                     //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
                     viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                    //sohail Set_Flag_For_Admin();
+                    
                     return View("CreateUserForm", viewModel);
                 }
 
                 // If User Added Successfully & No Role was selected for New user OR
                 // If Both User & it Roles are Added Successfully
                 // Show the Users List
-                var users = UserManager.Users.Include(u => u.Roles).ToList();
-                //sohail Set_Flag_For_Admin();
+                //var users = UserManager.Users.Include(u => u.Roles).ToList();
+                
                 ViewBag.Message = "Record(s) addded successfully.";
-                return View("List", users);
+                return List();
+                //return View("List", users);
             }
             else
             {
@@ -192,7 +199,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
                 ModelState.AddModelError("", "Something failed.");
                 viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                //sohail Set_Flag_For_Admin();
+                
                 // Show again the Create View, Ref Data Filled
                 return View("CreateUserForm", viewModel);
             }
@@ -213,7 +220,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var user = await UserManager.FindByIdAsync(id);
 
             if (user == null)
-            { return HttpNotFound(); }
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
 
             var userRoles = await UserManager.GetRolesAsync(user.Id);
 
@@ -232,7 +243,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 })
             };
 
-            //sohail Set_Flag_For_Admin();
+            
             return View("EditUserForm", viewModel);
         }
 
@@ -276,7 +287,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
 
                 if (user == null)
-                { return HttpNotFound(); }
+                {
+                    ViewBag.ErrorMessage = $"User with Id = {viewModel.Email} cannot be found";
+                    return View("NotFound");
+                    //return HttpNotFound();
+                }
 
                 user.UserName = viewModel.Email;
                 user.Email = viewModel.Email;
@@ -288,8 +303,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // Error Occurs While Adding Roles
                 if (!result.Succeeded)
                 {
-                    // Add Error
-                    HandleUpdateResultOneError(result);
+                    ViewBag.Message = "Error occurred while updating Record(s)";
+                    foreach (var error in result.Errors)
+                    { ModelState.AddModelError("", error); }
 
                     // show view
                     return View("EditUserForm", new EditUserFormViewModel()
@@ -307,7 +323,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 if (!result.Succeeded)
                 {
                     // Add Error
-                    HandleUpdateResultOneError(result);
+                    ViewBag.Message = "Error occurred while adding Record(s)";
+                    foreach (var error in result.Errors)
+                    { ModelState.AddModelError("", error); }
 
                     // show view
                     return View("EditUserForm", new EditUserFormViewModel()
@@ -318,16 +336,18 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     });
                 }
 
-
                 // Remove all Roles other than selected roles.
                 result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(selectedRoles).ToArray<string>());
-
 
                 // Error Occurs While Removing Roles
                 if (!result.Succeeded)
                 {
+                    ViewBag.Message = "Error occurred while updating Record(s)";
+                    foreach (var error in result.Errors)
+                    { ModelState.AddModelError("", error); }
+
                     // Edit Error
-                    HandleUpdateResultOneError(result);
+                    //HandleUpdateResultOneError(result);
 
                     return View("EditUserForm", new EditUserFormViewModel()
                     {
@@ -338,11 +358,10 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 }
 
                 // User Added, Role Added, Role Removed Successfully. Show List Role
+                
+                ViewBag.Message = "Record(s) updated successfully.";                
+                return List();
 
-                var users = UserManager.Users.Include(u => u.Roles).ToList();
-                //sohail Set_Flag_For_Admin();
-                ViewBag.Message = "Record(s) updated successfully.";
-                return View("List", users);
             }
 
             // Add Error
@@ -356,12 +375,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
             });
 
         }
-
-
-
-
-
-
 
 
         /*
@@ -429,9 +442,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 }
         */
 
-
-
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -439,13 +451,29 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            var userInDB = UserManager.Users.FirstOrDefault(u => u.Id == id);
-            //_context.Users.Remove(user);
-            IdentityResult result = await UserManager.UpdateAsync(userInDB);
-            HandleDeleteResult(result);
-            //HandleDeleteResult(_context.SaveChanges());
+            //var userInDB = UserManager.Users.FirstOrDefault(u => u.Id == id);
+            var user = await UserManager.FindByIdAsync(id);
 
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
+
+            IdentityResult result;
+            result = await UserManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error);}                
+                return View("Delete", user);
+            }
+
+            ViewBag.Message = "Record(s) deleted successfully.";
             return List();
+
             //return RedirectToAction("List", "Users", new { area = "AccessControl" });
         }
 
@@ -463,7 +491,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             if (user == null)
             {
-                return HttpNotFound();
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
             }
 
             return View("Delete", user);
@@ -488,20 +518,17 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             if (user == null)
             {
-                return HttpNotFound();
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
             }
 
-            IdentityResult result;
-            result = await UserManager.DeleteAsync(user);
-
-            //if (deleteUser != null)
-            //{ result = await RoleManager.DeleteAsync(role);}
-            //else
-            //{ result = await RoleManager.DeleteAsync(role);}
+            IdentityResult result = await UserManager.DeleteAsync(user);
 
             if (!result.Succeeded)
             {
-                ModelState.AddModelError("", result.Errors.First());
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
                 return View("Delete", user);
             }
 

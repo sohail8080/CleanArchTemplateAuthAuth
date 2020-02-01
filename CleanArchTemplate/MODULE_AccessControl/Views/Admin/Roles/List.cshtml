@@ -1,24 +1,28 @@
 ﻿@using CleanArchTemplate.Common.UOW
+@using Microsoft.AspNet.Identity.Owin;
+@using Microsoft.AspNet.Identity;
+@using System.Web;
 
 @model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
-@{
-    ViewBag.Title = "Add Role";
-    bool isAdminUser = false;
-    if (ViewBag.isAdminUser != null)
-    { isAdminUser = Boolean.Parse(ViewBag.isAdminUser.ToString()); }
-}
 
-<h2>Add New Roles</h2>
+<h2>Role Managment</h2>
 
 @*Just for demo, how UI can be customized based on roles*@
 
-@if (isAdminUser)
+
+@if (!string.IsNullOrEmpty(User.Identity.GetUserId()))
 {
-    <p>
-        @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
-        @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-    </p>
+    if (this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>()
+        .IsInRole(User.Identity.GetUserId(), "Admin"))
+    {
+        <p>
+            @Html.ActionLink("Create", "Create", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createRoleLink", @class = "btn btn-primary" })
+            @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+        </p>
+    }
 }
+
+
 
 @if (ViewBag.Message != null && ViewBag.Message != string.Empty)
 {
@@ -39,7 +43,8 @@
             <th>Details</th>
             <th>Users</th>
             <th>Edit</th>
-            <th>Delete</th>
+            <th>Delete by Get </th>
+            <th>Delete by Post </th>
             <th>2 Step Delete</th>
             <th>Add Users</th>
         </tr>
@@ -48,30 +53,37 @@
 
         @foreach (var role in Model)
         {
-        <tr>
-            <td>  @role.Name</td>
-            <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLink" }) </td>
+            <tr>
+                <td>  @role.Name</td>
+                <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLink" }) </td>
 
-            <td>
-                @if (role.Users != null && role.Users.Count >= 1)
-                {
-                    var roleUserIds = role.Users;
-                    string userlist = string.Empty;
-                    foreach (var roleUserId in roleUserIds)
+                <td>
+                    @if (role.Users != null && role.Users.Count >= 1)
                     {
-                        var user = new ApplicationDbContext().Users.FirstOrDefault(u => u.Id == roleUserId.UserId);
-                        userlist = userlist + user.UserName + ", ";
+                        var roleUserIds = role.Users;
+                        string userlist = string.Empty;
+                        foreach (var roleUserId in roleUserIds)
+                        {
+                            var user = new ApplicationDbContext().Users.FirstOrDefault(u => u.Id == roleUserId.UserId);
+                            userlist = userlist + user.UserName + ", ";
+                        }
+
+                        @Html.ActionLink(userlist, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLinks" })
                     }
+                </td>
 
-                    @Html.ActionLink(userlist, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLinks" })
-                }
-            </td>
-
-            <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleEditLink" }) </td>
-            <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
-            <td> @Html.ActionLink("Delete", "Delete2", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
-            <td> @Html.ActionLink("Add Users", "List", "RolesUsers", routeValues: new { userid = role.Id }, htmlAttributes: new { id = "roleDeleteLink" })</td>
-        </tr>
+                <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleEditLink" }) </td>
+                <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+                <td>
+                    @using (Html.BeginForm("Delete", "Roles", routeValues: new { area = "AccessControl", id = role.Id }, method: FormMethod.Post, htmlAttributes: new { id = "roleDeleteLinkForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="submit" value="Delete" class="btn btn-link" />
+                    }
+                </td>
+                <td> @Html.ActionLink("Delete", "Delete2", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+                <td> @Html.ActionLink("Add Users", "List", "RolesUsers", routeValues: new { userid = role.Id }, htmlAttributes: new { id = "roleDeleteLink" })</td>
+            </tr>
 
         }
 

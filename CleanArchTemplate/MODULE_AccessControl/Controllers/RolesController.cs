@@ -23,7 +23,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
     {
         public RolesController()
         {
-           
+
         }
 
         // Based on the Configuration, both Services will be provided by DI/IOC
@@ -41,7 +41,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
         ////////////////Below Controller Methods//////////////////////
-        
+
 
         [HttpGet]
         public ActionResult List()
@@ -52,8 +52,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
             //var roles = await RoleManager.Roles.ToListAsync();
-            var roles = RoleManager.Roles.Include(u => u.Users).ToList();
-            //sohail Set_Flag_For_Admin();
+            var roles = RoleManager.Roles.Include(u => u.Users).ToList();           
             return View("List", roles);
 
             // Following we get All Roles by EF Repo
@@ -69,11 +68,18 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            
+
             //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
             //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
             var role = await RoleManager.FindByIdAsync(id);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
 
             // Get the list of Users in this Role
             var users = new List<ApplicationUser>();
@@ -98,8 +104,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            var viewModel = new RoleFormViewModel();
-            //sohail Set_Flag_For_Admin();
+            var viewModel = new RoleFormViewModel();            
             return View("RoleForm", viewModel);
         }
 
@@ -117,10 +122,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var role = await RoleManager.FindByIdAsync(id);
 
             if (role == null)
-            { return HttpNotFound(); }
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
 
             var viewModel = new RoleFormViewModel(role);
-            //sohail Set_Flag_For_Admin();
+           
             return View("RoleForm", viewModel);
         }
 
@@ -144,12 +153,21 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 if (!RoleManager.RoleExists(viewModel.Name))
                 {
                     IdentityResult result = await RoleManager.CreateAsync(new IdentityRole(viewModel.Name));
-                    HandleAddResult(result); // Create Role in DB
-                    
-                    if(result.Succeeded)
-                    { return List();}
+
+                    //HandleAddResult(result); // Create Role in DB
+
+                    if (result.Succeeded)
+                    {
+                        ViewBag.Message = "Record(s) created successfully.";
+                        return List();
+                    }
                     else
-                    { return View("RoleForm", viewModel);}
+                    {
+                        ViewBag.Message = "Error occurred while updating Record(s)";
+                        foreach (var error in result.Errors)
+                        { ModelState.AddModelError("", error); }
+                        return View("RoleForm", viewModel);
+                    }
 
                 }
                 else
@@ -165,33 +183,38 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 // Edit Role Case
 
-                if (!RoleManager.RoleExists(viewModel.Name))
-                {
-                    //var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
-                    var roleInDB = await RoleManager.FindByIdAsync(viewModel.Id);
 
-                    if (roleInDB == null)
+                    //var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
+                    var role = await RoleManager.FindByIdAsync(viewModel.Id);
+
+                    if (role == null)
                     {
-                        return HttpNotFound();
+
+                        ViewBag.ErrorMessage = $"Role with Id = {viewModel.Id} cannot be found";
+                        return View("NotFound");
+                        //return HttpNotFound();
                     }
 
-                    roleInDB.Name = viewModel.Name;
-                    IdentityResult result = await RoleManager.UpdateAsync(roleInDB);
+                    role.Name = viewModel.Name;
+                    IdentityResult result = await RoleManager.UpdateAsync(role);
 
                     //HandleUpdateResult(_context.SaveChanges());
-                    HandleUpdateResult(result);
+                    //HandleUpdateResult(result);
 
                     if (result.Succeeded)
-                    { return List(); }
+                    {
+                        ViewBag.Message = "Record(s) updated successfully.";
+                        return List();
+                    }
                     else
-                    { return View("RoleForm", viewModel); }
+                    {
+                        ViewBag.Message = "Error occurred while updating Record(s)";
+                        foreach (var error in result.Errors)
+                        { ModelState.AddModelError("", error); }
+                        return View("RoleForm", viewModel);
+                    }
 
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Role already exist.");
-                    return View("RoleForm", viewModel);
-                }
+
 
 
                 //return List();
@@ -213,9 +236,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
 
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(string id)
         {
+
             if (string.IsNullOrEmpty(id))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -224,20 +249,27 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var role = await RoleManager.FindByIdAsync(id);
 
             if (role == null)
-            { return HttpNotFound(); }
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
 
-            IdentityResult result = await RoleManager.DeleteAsync(role);
+            IdentityResult result;
+            result = await RoleManager.DeleteAsync(role);
 
-            HandleDeleteResult(result);
 
-            //if (result.Succeeded)
-            //{ return List(); }
-            //else
-            //{ return View("RoleForm", viewModel); }
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while deleting Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+                return View("Delete", role);
+            }
 
+            //return RedirectToAction("List");
+            ViewBag.Message = "Record(s) deleted successfully.";
             return List();
-
-
 
             //var role = RoleManager.FindById(id);
             //var result = RoleManager.Delete(role);
@@ -272,7 +304,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             if (role == null)
             {
-                return HttpNotFound();
+                ViewBag.ErrorMessage = $"Role with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
             }
 
             return View("Delete", role);
@@ -287,33 +321,30 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(string id)
         {
-          
-                if (string.IsNullOrEmpty(id))
-                {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-                }
 
-                var role = await RoleManager.FindByIdAsync(id);
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
 
-                if (role == null)
-                {
-                    return HttpNotFound();
-                }
+            var role = await RoleManager.FindByIdAsync(id);
 
-                IdentityResult result;
-                result = await RoleManager.DeleteAsync(role);
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
 
+            IdentityResult result = await RoleManager.DeleteAsync(role);
 
-                //if (deleteUser != null)
-                //{ result = await RoleManager.DeleteAsync(role);}
-                //else
-                //{ result = await RoleManager.DeleteAsync(role);}
-
-                if (!result.Succeeded)
-                {
-                    ModelState.AddModelError("", result.Errors.First());
-                    return View("Delete", role);
-                }
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                return View("Delete", role);
+            }
 
             //return RedirectToAction("List");
             ViewBag.Message = "Record(s) deleted successfully.";
@@ -342,8 +373,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var role = RoleManager.Roles.FirstOrDefault(r => r.Name == roleName);
 
             var list = from user in users
-                   where user.Roles.Any(r => r.RoleId == role.Id)
-                   select user;
+                       where user.Roles.Any(r => r.RoleId == role.Id)
+                       select user;
 
             return list;
         }
