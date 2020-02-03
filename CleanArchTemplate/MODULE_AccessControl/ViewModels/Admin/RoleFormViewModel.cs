@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
+    // Not used
     public class RoleFormViewModel
     {
         public string Id { get; set; }

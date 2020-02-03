@@ -26,7 +26,7 @@
 
         @Html.HiddenFor(m => m.Id)
     <div class="form-actions no-color">
-        <input type="submit" value="Delete" class="btn btn-primary" /> |
+        <input type="submit" value="Delete" class="btn btn-danger" />
         @Html.ActionLink("Back to List", "List", "Roles", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listRoleLink", @class = "btn btn-primary" })
     </div>
     }

@@ -184,6 +184,7 @@
     <Compile Include="MODULE_AccessControl\Controllers\UsersRolesController.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationRole.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationUser.cs" />
+    <Compile Include="MODULE_AccessControl\Persistence\ClaimsStore.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\UOW\AccessControlBoundedContext.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\UOW\AccountDbContext.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Account\ExternalLoginListViewModel.cs" />
@@ -198,10 +199,14 @@
     <Compile Include="MODULE_AccessControl\Persistence\UOW\ManageDbContext.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\RolesController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersController.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateUserFormViewModel2.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\EditUserFormViewModel2.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\EditUserFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleName.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateUserFormViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserClaim.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserClaimsViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\UsersRolesViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\CustomValidation\ValidEmailDomainAttribute.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ConfigureTwoFactorViewModel.cs" />
@@ -276,7 +281,10 @@
     <Content Include="MODULE_AccessControl\Views\Admin\Roles\Delete.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\CreateUserForm.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Delete.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\CreateUserForm2.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Admin\Users\EditUserForm2.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\ConfirmDelete.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.js" />

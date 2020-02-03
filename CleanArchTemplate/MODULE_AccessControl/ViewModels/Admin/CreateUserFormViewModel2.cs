@@ -5,8 +5,11 @@ using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
-    public class CreateUserFormViewModel
+    public class CreateUserFormViewModel2
     {
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
 
         //public string Id { get; set; }
 
@@ -48,12 +51,13 @@ namespace CleanArchTemplate.AccessControl.ViewModels
             }
         }
 
-        public CreateUserFormViewModel()
+        public CreateUserFormViewModel2()
         {
             //Id = "";
+            AllClaimsList = new List<UserClaim>();
         }
 
-        public CreateUserFormViewModel(ApplicationUser user)
+        public CreateUserFormViewModel2(ApplicationUser user)
         {
             //Id = user.Id;
             Email = user.Email;
@@ -66,7 +70,11 @@ namespace CleanArchTemplate.AccessControl.ViewModels
 
         public SelectList AllRolesList { get; set; }
 
-        public SelectList AllClaimsList { get; set; }
+        public List<UserClaim> AllClaimsList { get; set; }
+
+        //public SelectList AllClaimsList { get; set; }
+
+       
 
     }
 }

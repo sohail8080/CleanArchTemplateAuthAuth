@@ -1,13 +1,16 @@
-﻿@model CleanArchTemplate.AccessControl.ViewModels.EditUserFormViewModel
+﻿@model CleanArchTemplate.AccessControl.ViewModels.EditUserFormViewModel2
 @{
     /**/
+
+    // This shows how to Bind List of Objects on the UI.
+    // This show how to get List of Objects as Automatic Model Binding when form is posted
 
     ViewBag.Title = Model.Title;
 }
 
 <h2>@ViewBag.Title.</h2>
 
-@using (Html.BeginForm("Edit", "Users", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("Edit2", "Users", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
     <hr />
@@ -66,20 +69,27 @@
 
     <div class="form-group">
         @Html.Label("Claims", new { @class = "control-label col-md-2" })
-        <span class=" col-md-10">
+        <div class=" col-md-10">
             @if (Model.SelectedClaimsList.Count() > 0)
             {
-                foreach (var item in Model.SelectedClaimsList)
+
+                for (int i = 0; i < Model.SelectedClaimsList.Count; i++)
                 {
-                    <input type="checkbox" name="SelectedClaims" value="@item.Value" checked="@item.Selected" class="checkbox-inline" />
-                    @Html.Label(item.Value, new { @class = "control-label" })
+                    @*<div class="form-check m-1">*@
+                    @*<input type="hidden" value="@Model.SelectedClaimsList[i].ClaimType" />*@
+                    @Html.HiddenFor(m => m.SelectedClaimsList[i].ClaimType)
+                    @Html.CheckBoxFor(m => m.SelectedClaimsList[i].IsSelected, new { @class = "form-check-input" })
+                    <label class="form-check-label" asp-for="item.IsSelected">
+                        @Model.SelectedClaimsList[i].ClaimType
+                    </label>
+                    @*</div>*@
                 }
             }
             else
             {
                 @Html.Label("No Claims found for User", new { @class = "control-label" })
             }
-        </span>
+        </div>
     </div>
 
 

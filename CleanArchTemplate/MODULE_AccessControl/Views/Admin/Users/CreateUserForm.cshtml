@@ -2,6 +2,8 @@
 @{
     /**/
 
+    /**/
+
     ViewBag.Title = Model.Title;
 }
 
@@ -60,13 +62,41 @@
             Select User Role
         </label>
         <div class="col-md-10">
-            @foreach (var item in Model.AllRolesList)
+            @if (Model.AllRolesList.Count() > 0)
             {
-                <input type="checkbox" name="SelectedRoles" value="@item.Value" class="checkbox-inline" />
-                @Html.Label(item.Value, new { @class = "control-label" })
+                foreach (var item in Model.AllRolesList)
+                {
+                    <input type="checkbox" name="SelectedRoles" value="@item.Value" class="checkbox-inline" />
+                    @Html.Label(item.Value, new { @class = "control-label" })
+                }
+            }
+            else
+            {
+                @Html.Label("No Roles found for User", new { @class = "control-label" })
             }
         </div>
     </div>
+
+    <div class="form-group">
+        <label class="col-md-2 control-label">
+            Select User Claims
+        </label>
+        <div class="col-md-10">
+            @if (Model.AllClaimsList.Count() > 0)
+            {
+                foreach (var item in Model.AllClaimsList)
+                {
+                    <input type="checkbox" name="SelectedClaims" value="@item.Value" class="checkbox-inline" />
+                    @Html.Label(item.Value, new { @class = "control-label" })
+                }
+            }
+            else
+            {
+                @Html.Label("No Claims found for User", new { @class = "control-label" })
+            }
+        </div>
+    </div>
+
 
 
     @*@Html.HiddenFor(m => m.Id)*@

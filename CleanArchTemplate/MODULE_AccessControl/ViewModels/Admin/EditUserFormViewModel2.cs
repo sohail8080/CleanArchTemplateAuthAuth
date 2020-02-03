@@ -1,14 +1,20 @@
 ﻿using CleanArchTemplate.AccessControl.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
-    public class CreateUserFormViewModel
+    public class EditUserFormViewModel2
     {
 
-        //public string Id { get; set; }
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
+
+        [Required]
+        public string Id { get; set; }
 
 
         [Required(AllowEmptyStrings = false)]
@@ -16,16 +22,6 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
 
         // New Properties Added to the Application user
 
@@ -44,29 +40,35 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         {
             get
             {
-                return "New User";
+                return "Edit User";
             }
         }
 
-        public CreateUserFormViewModel()
+        public EditUserFormViewModel2()
         {
             //Id = "";
+            SelectedClaimsList = new List<UserClaim>();
         }
 
-        public CreateUserFormViewModel(ApplicationUser user)
+        public EditUserFormViewModel2(ApplicationUser user)
         {
-            //Id = user.Id;
+            Id = user.Id;
             Email = user.Email;
             DrivingLicense = user.DrivingLicense;// New Properties
             Phone = user.Phone; // New Properties
 
         }
 
-        //public IEnumerable<SelectListItem> SelectedRolesList { get; set; }
+        public IEnumerable<SelectListItem> SelectedRolesList { get; set; }
 
-        public SelectList AllRolesList { get; set; }
 
-        public SelectList AllClaimsList { get; set; }
+        //public IEnumerable<SelectListItem> SelectedClaimsList { get; set; }
+
+        public List<UserClaim> SelectedClaimsList { get; set; }
+
+        //public IEnumerable<Claim> selectedClaims { get; set; }
+
+        //public SelectList AllRolesList { get; set; }
 
     }
 }

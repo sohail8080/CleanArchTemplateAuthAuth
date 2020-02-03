@@ -255,9 +255,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 //return HttpNotFound();
             }
 
-            IdentityResult result;
-            result = await RoleManager.DeleteAsync(role);
-
+            IdentityResult result = await RoleManager.DeleteAsync(role);
 
             if (!result.Succeeded)
             {

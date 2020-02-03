@@ -1,6 +1,7 @@
 ﻿using CleanArchTemplate.AccessControl.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Web.Mvc;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
@@ -54,6 +55,8 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         }
 
         public IEnumerable<SelectListItem> SelectedRolesList { get; set; }
+        public IEnumerable<SelectListItem> SelectedClaimsList { get; set; }
+        //public IEnumerable<Claim> selectedClaims { get; set; }
 
         //public SelectList AllRolesList { get; set; }
 

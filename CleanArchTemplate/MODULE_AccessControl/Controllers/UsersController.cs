@@ -1,14 +1,17 @@
 ﻿using CleanArchTemplate.AccessControl.Domain;
+using CleanArchTemplate.AccessControl.Persistence;
 using CleanArchTemplate.AccessControl.ViewModels;
 using CleanArchTemplate.Common.BaseClasses;
 using CleanArchTemplate.Common.UOW;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -48,7 +51,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             //var users =  await UserManager.Users.ToListAsync()
             var users = UserManager.Users.Include(u => u.Roles).ToList();
-           
+
             return View("List", users);
         }
 
@@ -72,7 +75,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             ViewBag.RoleNames = await UserManager.GetRolesAsync(user.Id);
-            
+
             return View("Details", user);
         }
 
@@ -81,8 +84,17 @@ namespace CleanArchTemplate.AccessControl.Controllers
         public async Task<ActionResult> Create()
         {
             var viewModel = new CreateUserFormViewModel();
-            viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-            
+
+            viewModel.AllRolesList = new SelectList(
+                            items: await RoleManager.Roles.ToListAsync(),
+                            dataValueField: "Name",
+                            dataTextField: "Name");
+
+            viewModel.AllClaimsList = new SelectList(
+                            items: ClaimsStore.AllClaims,
+                            dataValueField: "value",
+                            dataTextField: "type");
+
             return View("CreateUserForm", viewModel);
         }
 
@@ -105,7 +117,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         //return View("List", users);
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(CreateUserFormViewModel viewModel, params string[] selectedRoles)
+        public async Task<ActionResult> Create(CreateUserFormViewModel viewModel, string[] selectedRoles, string[] selectedClaims)
         {
             // selectedRole is the name of the checkbox list on the html form
 
@@ -120,89 +132,120 @@ namespace CleanArchTemplate.AccessControl.Controllers
             IdentityResult result = null;
             ApplicationUser user = null;
 
-            // New User
 
-            // New User Model is Valid
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                user = new ApplicationUser
-                {
-                    UserName = viewModel.Email,
-                    Email = viewModel.Email,
-                    DrivingLicense = viewModel.DrivingLicense,
-                    Phone = viewModel.Phone,
-                };
-
-                result = await UserManager.CreateAsync(user, viewModel.Password);
-
-                //HandleAddResultOneError(result);
-
-                //Add Seleted Roles to the New User 
-                if (result.Succeeded)
-                {
-                    // New User Added Successfully now add it roles
-                    if (selectedRoles != null)
-                    {
-                        // If some roles are selected for New User, Add those roles
-                        result = await UserManager.AddToRolesAsync(user.Id, selectedRoles);
-
-                        // Errors occurs while adding Roles to New user                           
-                        if (!result.Succeeded)
-                        {
-                            // Error occurs while adding roles
-                            ModelState.AddModelError("", result.Errors.First());
-                            viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                            // Show again the Create View, Ref Data Filled
-                            return View("CreateUserForm", viewModel);
-                        }
-                        else
-                        {
-                            // No Errors occurs while adding Roles of New User
-                            //var users2 = UserManager.Users.Include(u => u.Roles).ToList();
-                            
-                            ViewBag.Message = "Record(s) updated successfully.";
-                            return List();
-                            //return View("List", users2);
-
-                        }
-                    }
-
-                }
-                else
-                {
-                    // Error occures while Adding New User
-                    //AddErrors(result);
-                    // Put All Roles List in the ViewBag
-                    //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
-                    viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
-                    
-                    return View("CreateUserForm", viewModel);
-                }
-
-                // If User Added Successfully & No Role was selected for New user OR
-                // If Both User & it Roles are Added Successfully
-                // Show the Users List
-                //var users = UserManager.Users.Include(u => u.Roles).ToList();
-                
-                ViewBag.Message = "Record(s) addded successfully.";
-                return List();
-                //return View("List", users);
-            }
-            else
-            {
-                // Model is not Valid.
-                // Select All Role list & show Create view.
-                // All Model Errors will be automatically shown.
-                // No need to add Error Message when Model is invalid.
-                // Model has those Error Messages in it & Shown Automatically.
-                // Show the Create Form with Ref. Data
-                //ViewBag.RoleId = new SelectList(RoleManager.Roles, "Name", "Name");
+                // Invalid Model, all Model Errors will be auto shown, no need to add yourself
+                // Model has those Error Messages in it & Shown Automatically.                              
                 ModelState.AddModelError("", "Something failed.");
-                viewModel.AllRolesList = new SelectList(await RoleManager.Roles.ToListAsync(), "Name", "Name");
+               
+                viewModel.AllRolesList = new SelectList(
+                                items: await RoleManager.Roles.ToListAsync(),
+                                dataValueField: "Name",
+                                dataTextField: "Name");
+
+                viewModel.AllClaimsList = new SelectList(
+                                items: ClaimsStore.AllClaims,
+                                dataValueField: "value",
+                                dataTextField: "type");
                 
-                // Show again the Create View, Ref Data Filled
                 return View("CreateUserForm", viewModel);
             }
+
+            // New User
+            user = new ApplicationUser
+            {
+                UserName = viewModel.Email,
+                Email = viewModel.Email,
+                DrivingLicense = viewModel.DrivingLicense,
+                Phone = viewModel.Phone,
+            };
+
+
+            result = await UserManager.CreateAsync(user, viewModel.Password);
+
+            if (!result.Succeeded)
+            {
+                // Error occures while Adding New User                                            
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = new SelectList(
+                                items: await RoleManager.Roles.ToListAsync(),
+                                dataValueField: "Name",
+                                dataTextField: "Name");
+
+                viewModel.AllClaimsList = new SelectList(
+                                items: ClaimsStore.AllClaims,
+                                dataValueField: "value",
+                                dataTextField: "type");
+
+                return View("CreateUserForm", viewModel);
+                
+            }
+
+
+            // New User Added Successfully now add it roles
+            if (selectedRoles == null)
+            {
+                ViewBag.Message = "Record(s) addded successfully.";
+                return List();
+            }
+
+            // If some roles are selected for New User, Add those roles
+            result = await UserManager.AddToRolesAsync(user.Id, selectedRoles);
+
+            // Errors occurs while adding Roles to New user                           
+            if (!result.Succeeded)
+            {
+                // Error occurs while adding roles
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = new SelectList(
+                                items: await RoleManager.Roles.ToListAsync(),
+                                dataValueField: "Name",
+                                dataTextField: "Name");
+
+                viewModel.AllClaimsList = new SelectList(
+                                items: ClaimsStore.AllClaims,
+                                dataValueField: "value",
+                                dataTextField: "type");
+
+                return View("CreateUserForm", viewModel);
+
+            }
+
+            List<Claim> selectedClaimsOnForm = ClaimsStore.AllClaims.Where(c => selectedClaims.Contains(c.Value)).ToList();
+
+            // Adding Claim Array
+            foreach (var claim in selectedClaimsOnForm)
+            { result = await UserManager.AddClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                // Error occurs while adding roles
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = new SelectList(
+                                items: await RoleManager.Roles.ToListAsync(),
+                                dataValueField: "Name",
+                                dataTextField: "Name");
+
+                viewModel.AllClaimsList = new SelectList(
+                                items: ClaimsStore.AllClaims,
+                                dataValueField: "value",
+                                dataTextField: "type");
+
+                return View("CreateUserForm", viewModel);
+
+            }
+
+
+            ViewBag.Message = "Record(s) addded successfully.";
+            return List();
 
         }
 
@@ -227,6 +270,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             var userRoles = await UserManager.GetRolesAsync(user.Id);
+            var userClaims = await UserManager.GetClaimsAsync(user.Id);
 
             // All Roles List, with True False for Selected/Unselected Role list
             var viewModel = new EditUserFormViewModel()
@@ -240,20 +284,115 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     Selected = userRoles.Contains(x.Name),
                     Text = x.Name,
                     Value = x.Name
-                })
+                }).ToList(),
+                SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new SelectListItem()
+                {
+                    Selected = userClaims.Any(uc => uc.Value == x.Value),
+                    Text = x.Type,
+                    Value = x.Value
+                }).ToList()
             };
 
-            
+
             return View("EditUserForm", viewModel);
+        }
+
+
+
+        [HttpGet]
+        public async Task<ActionResult> Edit2(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            //var user = UserManager.Users.FirstOrDefault(u => u.Id == id);
+            var user = await UserManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
+
+            var userRoles = await UserManager.GetRolesAsync(user.Id);
+            // gets all the current claims of the user
+            var userClaims = await UserManager.GetClaimsAsync(user.Id);
+
+            // All Roles List, with True False for Selected/Unselected Role list
+            var viewModel = new EditUserFormViewModel2()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                DrivingLicense = user.DrivingLicense,
+                Phone = user.Phone,
+                SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
+                {
+                    Selected = userRoles.Contains(x.Name),
+                    Text = x.Name,
+                    Value = x.Name
+                }).ToList(),
+                SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                {
+                    IsSelected = userClaims.Any(uc => uc.Value == x.Value),
+                    ClaimType = x.Type,
+                }).ToList()
+            };
+
+
+            return View("EditUserForm2", viewModel);
+        }
+
+
+
+        private bool CompareClaimValues2(IList<Claim> userClaims, string value)
+        {
+            //foreach (var claim in userClaims)
+            //{
+            //    if (claim.Value.Equals(value))
+            //        return true;
+            //}
+
+            //return false;
+
+            return userClaims.Any(uc => uc.Value == value);
+
+
+        }
+
+
+        private List<Claim> CompareClaimValues(List<UserClaim> userClaims)
+        {
+            List<Claim> selecteduserClaims = new List<Claim>();
+
+            foreach (var claim in ClaimsStore.AllClaims)
+            {
+                foreach (var claim2 in userClaims)
+                {
+                    if(claim.Type == claim2.ClaimType && claim2.IsSelected == true)
+                    {
+                        selecteduserClaims.Add(claim);
+                    }
+                }
+
+            }
+
+            return selecteduserClaims;
+          
+            //return userClaims.Any(uc => uc.Value == value);
         }
 
 
         //var users = _context.Users.Include(u => u.Roles).ToList();
         //Set_Flag_For_Admin();
         //return View("List", users);
+
+        // This shows how to Bind List of Objects on the UI.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(EditUserFormViewModel viewModel, params string[] selectedRoles)
+        public async Task<ActionResult> Edit(EditUserFormViewModel viewModel, string[] selectedRoles, string[] selectedClaims)
         {
             // selectedRole is the name of the checkbox list on the html form
 
@@ -268,10 +407,16 @@ namespace CleanArchTemplate.AccessControl.Controllers
             IdentityResult result = null;
 
             //var user = UserManager.Users.FirstOrDefault(u => u.Id == viewModel.Id);
+
             ApplicationUser user = await UserManager.FindByIdAsync(viewModel.Id);
+
             IList<string> userRoles = await UserManager.GetRolesAsync(viewModel.Id);
+            IList<Claim> userClaims = await UserManager.GetClaimsAsync(viewModel.Id);
+
             // If SelectedRoles is null, then add Empty String
             selectedRoles = selectedRoles ?? new string[] { };
+
+            selectedClaims = selectedClaims ?? new string[] { };
 
             IEnumerable<SelectListItem> SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
             {
@@ -280,101 +425,342 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 Value = x.Name
             });
 
-            // User is to be Edited
-
-            // Edit User Data is Valid
-            if (ModelState.IsValid)
+            IEnumerable<SelectListItem> SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new SelectListItem()
             {
-
-                if (user == null)
-                {
-                    ViewBag.ErrorMessage = $"User with Id = {viewModel.Email} cannot be found";
-                    return View("NotFound");
-                    //return HttpNotFound();
-                }
-
-                user.UserName = viewModel.Email;
-                user.Email = viewModel.Email;
-                user.DrivingLicense = viewModel.DrivingLicense;
-                user.Phone = viewModel.Phone;
-
-                result = await UserManager.UpdateAsync(user);
-
-                // Error Occurs While Adding Roles
-                if (!result.Succeeded)
-                {
-                    ViewBag.Message = "Error occurred while updating Record(s)";
-                    foreach (var error in result.Errors)
-                    { ModelState.AddModelError("", error); }
-
-                    // show view
-                    return View("EditUserForm", new EditUserFormViewModel()
-                    {
-                        Id = user.Id,
-                        Email = user.Email,
-                        SelectedRolesList = SelectedRolesList
-                    });
-                }
-
-                // Only add newly added roles, do not add already added roles.
-                result = await UserManager.AddToRolesAsync(user.Id, selectedRoles.Except(userRoles).ToArray<string>());
-
-                // Error Occurs While Adding Roles
-                if (!result.Succeeded)
-                {
-                    // Add Error
-                    ViewBag.Message = "Error occurred while adding Record(s)";
-                    foreach (var error in result.Errors)
-                    { ModelState.AddModelError("", error); }
-
-                    // show view
-                    return View("EditUserForm", new EditUserFormViewModel()
-                    {
-                        Id = user.Id,
-                        Email = user.Email,
-                        SelectedRolesList = SelectedRolesList
-                    });
-                }
-
-                // Remove all Roles other than selected roles.
-                result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(selectedRoles).ToArray<string>());
-
-                // Error Occurs While Removing Roles
-                if (!result.Succeeded)
-                {
-                    ViewBag.Message = "Error occurred while updating Record(s)";
-                    foreach (var error in result.Errors)
-                    { ModelState.AddModelError("", error); }
-
-                    // Edit Error
-                    //HandleUpdateResultOneError(result);
-
-                    return View("EditUserForm", new EditUserFormViewModel()
-                    {
-                        Id = user.Id,
-                        Email = user.Email,
-                        SelectedRolesList = SelectedRolesList
-                    });
-                }
-
-                // User Added, Role Added, Role Removed Successfully. Show List Role
-                
-                ViewBag.Message = "Record(s) updated successfully.";                
-                return List();
-
-            }
-
-            // Add Error
-            ModelState.AddModelError("", "Something failed.");
-
-            return View("EditUserForm", new EditUserFormViewModel()
-            {
-                Id = user.Id,
-                Email = user.Email,
-                SelectedRolesList = SelectedRolesList
+                Selected = userClaims.Any(uc => uc.Value == x.Value),
+                Text = x.Type,
+                Value = x.Value
             });
 
+            // User is to be Edited
+
+
+            if (!ModelState.IsValid)
+            {
+                // Add Error
+                ModelState.AddModelError("", "Something failed.");
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {viewModel.Email} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
+
+            user.UserName = viewModel.Email;
+            user.Email = viewModel.Email;
+            user.DrivingLicense = viewModel.DrivingLicense;
+            user.Phone = viewModel.Phone;
+
+            result = await UserManager.UpdateAsync(user);
+
+            // Error Occurs While Updating User, no need to add Roles & Claims
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                // show view
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Only add newly added roles, do not add already added roles.
+            result = await UserManager.AddToRolesAsync(user.Id, selectedRoles.Except(userRoles).ToArray<string>());
+
+
+            // Error occurs while adding roles array, but user edited
+            if (!result.Succeeded)
+            {
+                // Add error
+                ViewBag.Message = "Error occurred while adding Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                // Show view
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Remove all roles other than selected roles.
+            result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(selectedRoles).ToArray<string>());
+
+            // Error occurs while removing roles, but user edited, role added, not removed
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Removing Claim Array
+            foreach (var claim in userClaims)
+            { result = await UserManager.RemoveClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            //IList<Claim> selectedClaimsOnForm = new List<Claim>();
+
+            List<Claim> selectedClaimsOnForm = ClaimsStore.AllClaims.Where(c => selectedClaims.Contains(c.Value)).ToList();
+
+            // Adding Claim Array
+            foreach (var claim in selectedClaimsOnForm)
+            { result = await UserManager.AddClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // User Added, Role Added, Role Removed Successfully. Show List Role
+            ViewBag.Message = "Record(s) updated successfully.";
+            return List();
+
+
         }
+
+
+        // This show how to get List of Objects as Automatic Model Binding when form is posted
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit2(EditUserFormViewModel2 viewModel, string[] selectedRoles)
+        {
+            // selectedRole is the name of the checkbox list on the html form
+
+            // HERE WE ARE USING SAME FORM & VIEWMODEL FOR ADD & EDIT
+            // BUT BOTH SCENARIOS ARE DIFFERENT,
+            // ADD NEED PASSWORD & CONFIRM PASSWORD IN VIEW & VIEWMODEL & THEY ARE MANDATORY
+            // WITH THEM MODEL WILL BE NOT VALIDATED
+            // EDIT DO NOT NEED PASSWORD & CONFIRM PASSWORD IN VIEW & VIEWMODEL
+            // MODEL VALIDATION WILL STOP US FROM EDITING USER AND WILL ASK FOR PASSWORKD & CONFIRM PASSWORD
+            // SPLIT VIEWS & VIEWMODELS FOR ADD & EDIT
+
+            IdentityResult result = null;
+
+            //var user = UserManager.Users.FirstOrDefault(u => u.Id == viewModel.Id);
+
+            ApplicationUser user = await UserManager.FindByIdAsync(viewModel.Id);
+
+            IList<string> userRoles = await UserManager.GetRolesAsync(viewModel.Id);
+            IList<Claim> userClaims = await UserManager.GetClaimsAsync(viewModel.Id);
+
+            // If SelectedRoles is null, then add Empty String
+            selectedRoles = selectedRoles ?? new string[] { };
+
+            // not needed as by default initized in constructor
+            //selectedClaims = selectedClaims ?? new string[] { };
+
+            IEnumerable<SelectListItem> SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
+            {
+                Selected = userRoles.Contains(x.Name),
+                Text = x.Name,
+                Value = x.Name
+            });
+
+            IEnumerable<SelectListItem> SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new SelectListItem()
+            {
+                Selected = userClaims.Any(uc => uc.Value == x.Value),
+                Text = x.Type,
+                Value = x.Value
+            });
+
+            // User is to be Edited
+
+
+            if (!ModelState.IsValid)
+            {
+                // Add Error
+                ModelState.AddModelError("", "Something failed.");
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {viewModel.Email} cannot be found";
+                return View("NotFound");
+                //return HttpNotFound();
+            }
+
+            user.UserName = viewModel.Email;
+            user.Email = viewModel.Email;
+            user.DrivingLicense = viewModel.DrivingLicense;
+            user.Phone = viewModel.Phone;
+
+            result = await UserManager.UpdateAsync(user);
+
+            // Error Occurs While Updating User, no need to add Roles & Claims
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                // show view
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Only add newly added roles, do not add already added roles.
+            result = await UserManager.AddToRolesAsync(user.Id, selectedRoles.Except(userRoles).ToArray<string>());
+
+
+            // Error occurs while adding roles array, but user edited
+            if (!result.Succeeded)
+            {
+                // Add error
+                ViewBag.Message = "Error occurred while adding Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                // Show view
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Remove all roles other than selected roles.
+            result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(selectedRoles).ToArray<string>());
+
+            // Error occurs while removing roles, but user edited, role added, not removed
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // Removing Claim Array
+            foreach (var claim in userClaims)
+            { result = await UserManager.RemoveClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            //IList<Claim> selectedClaimsOnForm = new List<Claim>();
+
+            List<Claim> selectedClaimsOnForm = CompareClaimValues(viewModel.SelectedClaimsList);
+
+            // Adding Claim Array
+            foreach (var claim in selectedClaimsOnForm)
+            { result = await UserManager.AddClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                ViewBag.Message = "Error occurred while updating Record(s)";
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                return View("EditUserForm", new EditUserFormViewModel()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    SelectedRolesList = SelectedRolesList,
+                    SelectedClaimsList = SelectedClaimsList
+                });
+            }
+
+            // User Added, Role Added, Role Removed Successfully. Show List Role
+            ViewBag.Message = "Record(s) updated successfully.";
+            return List();
+
+
+        }
+
+
+
 
 
         /*
@@ -467,7 +853,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                { ModelState.AddModelError("", error);}                
+                { ModelState.AddModelError("", error); }
                 return View("Delete", user);
             }
 

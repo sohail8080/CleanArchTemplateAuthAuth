@@ -22,5 +22,18 @@ namespace CleanArchTemplate.Common.UOW
         {
             return new ApplicationDbContext();
         }
+
+
+        //protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+
+        //    foreach (var foreignKey in modelBuilder.Entity().SelectMany(e => e.GetForeignKeys()))
+        //    {
+        //        foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+        //    }
+        //}
+
+
     }
 }

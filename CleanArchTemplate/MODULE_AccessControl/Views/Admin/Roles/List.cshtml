@@ -55,7 +55,7 @@
         {
             <tr>
                 <td>  @role.Name</td>
-                <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLink" }) </td>
+                <td> @Html.ActionLink("Details", "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLink", @class = "btn btn-primary" }) </td>
 
                 <td>
                     @if (role.Users != null && role.Users.Count >= 1)
@@ -68,21 +68,34 @@
                             userlist = userlist + user.UserName + ", ";
                         }
 
-                        @Html.ActionLink(userlist, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLinks" })
+                        @Html.ActionLink(userlist, "Details", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDetailsLinks", @class = "btn btn-link" })
                     }
                 </td>
 
-                <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleEditLink" }) </td>
-                <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
+                <td> @Html.ActionLink("Edit", "Edit", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleEditLink", @class = "btn btn-primary" }) </td>
+                <td> @Html.ActionLink("Delete", "Delete", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink", @class = "btn btn-danger" }) </td>
                 <td>
                     @using (Html.BeginForm("Delete", "Roles", routeValues: new { area = "AccessControl", id = role.Id }, method: FormMethod.Post, htmlAttributes: new { id = "roleDeleteLinkForm" }))
                     {
                         @Html.AntiForgeryToken()
-                        <input type="submit" value="Delete" class="btn btn-link" />
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+
+                        <span id="confirmDeleteSpan_@role.Id" style="display:none">
+                            <span>Are you sure you want to delete?</span>
+                            <button type="submit" class="btn btn-danger">Yes</button>
+                            <a href="#" class="btn btn-primary"
+                               onclick="confirmDelete('@role.Id', false)">No</a>
+                        </span>
+
+                        <span id="deleteSpan_@role.Id">
+                            <a href="#" class="btn btn-danger"
+                               onclick="confirmDelete('@role.Id', true)">Delete</a>
+                        </span>
+
                     }
                 </td>
-                <td> @Html.ActionLink("Delete", "Delete2", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink" }) </td>
-                <td> @Html.ActionLink("Add Users", "List", "RolesUsers", routeValues: new { userid = role.Id }, htmlAttributes: new { id = "roleDeleteLink" })</td>
+                <td> @Html.ActionLink("Delete", "Delete2", "Roles", routeValues: new { id = role.Id }, htmlAttributes: new { id = "roleDeleteLink", @class = "btn btn-danger" }) </td>
+                <td> @Html.ActionLink("Add Users", "List", "RolesUsers", routeValues: new { userid = role.Id }, htmlAttributes: new { id = "roleDeleteLink", @class = "btn btn-primary" })</td>
             </tr>
 
         }
@@ -90,7 +103,9 @@
     </tbody>
 </table>
 
-
+@section Scripts {
+    <script src="~/Scripts/ConfirmDelete.js"></script>
+}
 
 
 

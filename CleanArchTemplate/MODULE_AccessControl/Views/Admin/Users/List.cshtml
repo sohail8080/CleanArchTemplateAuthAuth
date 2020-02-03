@@ -41,6 +41,7 @@
             <th>Details</th>
             <th>Roles</th>
             <th>Edit</th>
+            <th>Edit2</th>
             <th>Delete by Get</th>
             <th>Delete by Post</th>
             <th>2 Step Delete</th>
@@ -51,42 +52,58 @@
 
         @foreach (var user in Model)
         {
-            <tr>
-                <td>  @user.UserName</td>
-                <td> @Html.ActionLink("Details", "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink" }) </td>
-                <td>
-                    @if (user.Roles != null && user.Roles.Count >= 1)
+        <tr>
+            <td>  @user.UserName</td>
+            <td> @Html.ActionLink("Details", "Details", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDetailsLink", @class = "btn btn-primary" }) </td>
+            <td>
+                @if (user.Roles != null && user.Roles.Count >= 1)
+                {
+                    var userRoleIds = user.Roles;
+                    string rolelist = string.Empty;
+                    foreach (var userRoleId in userRoleIds)
                     {
-                        var userRoleIds = user.Roles;
-                        string rolelist = string.Empty;
-                        foreach (var userRoleId in userRoleIds)
-                        {
-                            var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRoleId.RoleId);
-                            rolelist = rolelist + role.Name + ", ";
-                        }
-
-                        @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
+                        var role = new ApplicationDbContext().Roles.FirstOrDefault(r => r.Id == userRoleId.RoleId);
+                        rolelist = rolelist + role.Name + ", ";
                     }
-                </td>
 
-                <td>@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userEditLink" })</td>
-                <td>@Html.ActionLink("Delete", "Delete", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
-                <td>
-                    @using (Html.BeginForm("Delete", "Users", routeValues: new { area = "AccessControl", id = user.Id }, method: FormMethod.Post, htmlAttributes: new { id = "userDeleteLinkForm" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <input type="submit" value="Delete" class="btn btn-link" />
-                    }
-                </td>
-                <td>@Html.ActionLink("Delete", "Delete2", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
-                <td>@Html.ActionLink("Add Roles", "List", "UsersRoles", routeValues: new { userid = user.Id }, htmlAttributes: new { id = "userDeleteLink" })</td>
+                    @Html.ActionLink(rolelist, "Details", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userDetailsLink" })
+                }
+            </td>
 
-            </tr>
+            <td>@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userEditLink", @class = "btn btn-primary" })</td>
+            <td>@Html.ActionLink("Edit2", "Edit2", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userEditLink", @class = "btn btn-primary" })</td>
+            <td>@Html.ActionLink("Delete", "Delete", "Users", routeValues: new { area = "AccessControl", id = user.Id }, htmlAttributes: new { id = "userDeleteLink", @class = "btn btn-danger" })</td>
+            <td>
+                @using (Html.BeginForm("Delete", "Users", routeValues: new { area = "AccessControl", id = user.Id }, method: FormMethod.Post, htmlAttributes: new { id = "userDeleteLinkForm" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+
+                    <span id="confirmDeleteSpan_@user.Id" style="display:none">
+                        <span>Are you sure you want to delete?</span>
+                        <button type="submit" class="btn btn-danger">Yes</button>
+                        <a href="#" class="btn btn-primary" onclick="confirmDelete('@user.Id', false)">No</a>
+                    </span>
+
+                    <span id="deleteSpan_@user.Id">
+                        <a href="#" class="btn btn-danger" onclick="confirmDelete('@user.Id', true)">Delete</a>
+                    </span>
+                }
+            </td>
+            <td>@Html.ActionLink("Delete", "Delete2", "Users", routeValues: new { id = user.Id }, htmlAttributes: new { id = "userDeleteLink", @class = "btn btn-danger" })</td>
+            <td>@Html.ActionLink("Add Roles", "List", "UsersRoles", routeValues: new { userid = user.Id }, htmlAttributes: new { id = "userDeleteLink", @class = "btn btn-primary" })</td>
+
+        </tr>
 
         }
 
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="~/Scripts/ConfirmDelete.js"></script>
+}
 
 
 

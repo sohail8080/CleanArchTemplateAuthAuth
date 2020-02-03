@@ -38,6 +38,29 @@
     }
 </table>
 
-@Html.ActionLink("Edit", "Edit", "Users", routeValues: new { area = "AccessControl" , id = Model.Id }, htmlAttributes: new { id = "userEditLink", @class = "btn btn-primary" })
-@Html.ActionLink("Back to List", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listUserLink", @class = "btn btn-primary" })
+@using (Html.BeginForm("Delete", "Users", routeValues: new { area = "AccessControl", id = Model.Id }, method: FormMethod.Post, htmlAttributes: new { id = "userDeleteLinkForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ActionLink("Edit", "Edit", "Users", routeValues: new { area = "AccessControl", id = Model.Id }, htmlAttributes: new { id = "userEditLink", @class = "btn btn-primary" })
+    <span style="width:1px"> </span>
+    @Html.ActionLink("Back to List", "List", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "listUserLink", @class = "btn btn-primary" })
+    <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete user : @Model.UserName')" />
+
+    <span id="confirmDeleteSpan_@Model.Id" style="display:none">
+        <span>Are you sure you want to delete?</span>
+        <button type="submit" class="btn btn-danger">Yes</button>
+        <a href="#" class="btn btn-primary"
+           onclick="confirmDelete('@Model.Id', false)">No</a>
+    </span>
+
+    <span id="deleteSpan_@Model.Id">
+        <a href="#" class="btn btn-danger"
+           onclick="confirmDelete('@Model.Id', true)">Delete</a>
+    </span>
+
+}
+
+@section Scripts {
+    <script src="~/Scripts/ConfirmDelete.js"></script>
+}
 
