@@ -14,10 +14,11 @@
     if (this.Context.GetOwinContext().GetUserManager<ApplicationUserManager>()
         .IsInRole(User.Identity.GetUserId(), "Admin"))
     {
-        <p>
-            @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
-            @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
-        </p>
+<p>
+    @Html.ActionLink("Create", "Create", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink", @class = "btn btn-primary" })
+    @Html.ActionLink("Create2", "Create2", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createUserLink2", @class = "btn btn-primary" })
+    @Html.ActionLink("Home", "Index", "Admin", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "gotoHomeLink", @class = "btn btn-primary" })
+</p>
     }
 }
 

@@ -5,10 +5,10 @@ using System.Web;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
-    public class UserClaim
+    public class UserRole
     {
-        public string ClaimType { get; set; }
-        public string ClaimValue { get; set; }
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
         public bool IsSelected { get; set; }
     }
-}   
+}

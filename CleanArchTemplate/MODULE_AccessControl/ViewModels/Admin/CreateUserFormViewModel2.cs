@@ -1,7 +1,10 @@
 ﻿using CleanArchTemplate.AccessControl.Domain;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using System.Linq;
+using System.Security.Claims;
 
 namespace CleanArchTemplate.AccessControl.ViewModels
 {
@@ -54,6 +57,7 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         public CreateUserFormViewModel2()
         {
             //Id = "";
+            AllRolesList = new List<UserRole>();
             AllClaimsList = new List<UserClaim>();
         }
 
@@ -68,13 +72,35 @@ namespace CleanArchTemplate.AccessControl.ViewModels
 
         //public IEnumerable<SelectListItem> SelectedRolesList { get; set; }
 
-        public SelectList AllRolesList { get; set; }
+        public List<UserRole> AllRolesList { get; set; }
 
         public List<UserClaim> AllClaimsList { get; set; }
 
+
+        public string[] GetSelectedRoles()
+        {
+            return AllRolesList.Where(r => r.IsSelected == true).Select(s => s.RoleName).ToList().ToArray();
+        }
+
+        public List<Claim> GetSelectedClaims()
+        {
+            return AllClaimsList.Where(c => c.IsSelected == true).Select(s=> new Claim(s.ClaimType, s.ClaimType)).ToList();
+        }
+
+
+        public bool IsAnyRoleSelected()
+        {
+            return AllRolesList.Any(r => r.IsSelected == true);
+        }
+
+        public bool IsAnyClaimSelected()
+        {
+            return AllClaimsList.Any(c => c.IsSelected == true);
+        }
+
         //public SelectList AllClaimsList { get; set; }
 
-       
+
 
     }
 }

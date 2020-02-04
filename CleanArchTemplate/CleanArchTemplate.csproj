@@ -206,7 +206,7 @@
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\RoleFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\CreateUserFormViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserClaim.cs" />
-    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserClaimsViewModel.cs" />
+    <Compile Include="MODULE_AccessControl\ViewModels\Admin\UserRole.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Admin\UsersRolesViewModel.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\CustomValidation\ValidEmailDomainAttribute.cs" />
     <Compile Include="MODULE_AccessControl\ViewModels\Manage\ConfigureTwoFactorViewModel.cs" />

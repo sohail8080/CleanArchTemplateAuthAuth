@@ -99,6 +99,31 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
+        // Show the Create Form
+        [HttpGet]
+        public ActionResult Create2()
+        {
+            var viewModel = new CreateUserFormViewModel2();
+
+            viewModel.AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
+            {
+                IsSelected = false,
+                RoleId = x.Id,
+                RoleName = x.Name
+            }).ToList();
+
+
+            viewModel.AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+            {
+                IsSelected = false,
+                ClaimType = x.Type,
+                ClaimValue = x.Value,
+            }).ToList();
+
+            return View("CreateUserForm2", viewModel);
+        }
+
+
         // Code to Create User with Role, Role, UserRole
         //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
         //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
@@ -138,7 +163,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // Invalid Model, all Model Errors will be auto shown, no need to add yourself
                 // Model has those Error Messages in it & Shown Automatically.                              
                 ModelState.AddModelError("", "Something failed.");
-               
+
                 viewModel.AllRolesList = new SelectList(
                                 items: await RoleManager.Roles.ToListAsync(),
                                 dataValueField: "Name",
@@ -148,7 +173,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                                 items: ClaimsStore.AllClaims,
                                 dataValueField: "value",
                                 dataTextField: "type");
-                
+
                 return View("CreateUserForm", viewModel);
             }
 
@@ -181,7 +206,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                                 dataTextField: "type");
 
                 return View("CreateUserForm", viewModel);
-                
+
             }
 
 
@@ -250,6 +275,163 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Create2(CreateUserFormViewModel2 viewModel)
+        {
+            // selectedRole is the name of the checkbox list on the html form
+
+            // HERE WE ARE USING SAME FORM & VIEWMODEL FOR ADD & EDIT
+            // BUT BOTH SCENARIOS ARE DIFFERENT,
+            // ADD NEED PASSWORD & CONFIRM PASSWORD IN VIEW & VIEWMODEL & THEY ARE MANDATORY
+            // WITH THEM MODEL WILL BE NOT VALIDATED
+            // EDIT DO NOT NEED PASSWORD & CONFIRM PASSWORD IN VIEW & VIEWMODEL
+            // MODEL VALIDATION WILL STOP US FROM EDITING USER AND WILL ASK FOR PASSWORKD & CONFIRM PASSWORD
+            // SPLIT VIEWS & VIEWMODELS FOR ADD & EDIT
+
+            IdentityResult result = null;
+            ApplicationUser user = null;
+
+
+            if (!ModelState.IsValid)
+            {
+                // Invalid Model, all Model Errors will be auto shown, no need to add yourself
+                // Model has those Error Messages in it & Shown Automatically.                              
+                ModelState.AddModelError("", "Something failed.");
+
+                viewModel.AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
+                {
+                    IsSelected = false,
+                    RoleId = x.Id,
+                    RoleName = x.Name
+                }).ToList();
+
+
+                viewModel.AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                {
+                    IsSelected = false,
+                    ClaimType = x.Type,
+                }).ToList();
+
+                return View("CreateUserForm2", viewModel);
+            }
+
+            // New User
+            user = new ApplicationUser
+            {
+                UserName = viewModel.Email,
+                Email = viewModel.Email,
+                DrivingLicense = viewModel.DrivingLicense,
+                Phone = viewModel.Phone,
+            };
+
+
+            result = await UserManager.CreateAsync(user, viewModel.Password);
+
+            if (!result.Succeeded)
+            {
+                // Error occures while Adding New User                                            
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
+                {
+                    IsSelected = false,
+                    RoleId = x.Id,
+                    RoleName = x.Name
+                }).ToList();
+
+
+                viewModel.AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                {
+                    IsSelected = false,
+                    ClaimType = x.Type,
+                    ClaimValue = x.Value,
+                }).ToList();
+
+                return View("CreateUserForm2", viewModel);
+
+            }
+
+
+            // New User Added Successfully now add it roles
+            if (viewModel.IsAnyRoleSelected() == false)
+            {
+                ViewBag.Message = "Record(s) addded successfully.";
+                return List();
+            }
+
+
+
+            // If some roles are selected for New User, Add those roles
+            result = await UserManager.AddToRolesAsync(user.Id, viewModel.GetSelectedRoles());
+
+            // Errors occurs while adding Roles to New user                           
+            if (!result.Succeeded)
+            {
+                // Error occurs while adding roles
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
+                {
+                    IsSelected = false,
+                    RoleId = x.Id,
+                    RoleName = x.Name
+                }).ToList();
+
+
+                viewModel.AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                {
+                    IsSelected = false,
+                    ClaimType = x.Type,
+                    ClaimValue = x.Value,
+                }).ToList();
+
+                return View("CreateUserForm2", viewModel);
+
+            }
+
+            List<Claim> selectedClaimsOnForm = viewModel.GetSelectedClaims();
+
+            // Adding Claim Array
+            foreach (var claim in selectedClaimsOnForm)
+            { result = await UserManager.AddClaimAsync(user.Id, claim); }
+
+
+            if (!result.Succeeded)
+            {
+                // Error occurs while adding roles
+                foreach (var error in result.Errors)
+                { ModelState.AddModelError("", error); }
+
+                viewModel.AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
+                {
+                    IsSelected = false,
+                    RoleId = x.Id,
+                    RoleName = x.Name,
+                }).ToList();
+
+
+                viewModel.AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                {
+                    IsSelected = false,
+                    ClaimType = x.Type,
+                    ClaimValue = x.Value,
+                }).ToList();
+
+                return View("CreateUserForm2", viewModel);
+
+            }
+
+
+            ViewBag.Message = "Record(s) addded successfully.";
+            return List();
+
+        }
+
+
         // Show the Edit Form
         [HttpGet]
         public async Task<ActionResult> Edit(string id)
@@ -298,7 +480,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
-
+        // Show the Edit Form
         [HttpGet]
         public async Task<ActionResult> Edit2(string id)
         {
@@ -328,23 +510,23 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 Email = user.Email,
                 DrivingLicense = user.DrivingLicense,
                 Phone = user.Phone,
-                SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
+                AllRolesList = RoleManager.Roles.ToList().Select(x => new UserRole()
                 {
-                    Selected = userRoles.Contains(x.Name),
-                    Text = x.Name,
-                    Value = x.Name
+                    IsSelected = userRoles.Contains(x.Name),
+                    RoleId = x.Id,
+                    RoleName = x.Name
                 }).ToList(),
-                SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
+                AllClaimsList = ClaimsStore.AllClaims.Select(x => new UserClaim()
                 {
                     IsSelected = userClaims.Any(uc => uc.Value == x.Value),
                     ClaimType = x.Type,
+                    ClaimValue = x.Value,
                 }).ToList()
             };
 
 
             return View("EditUserForm2", viewModel);
         }
-
 
 
         private bool CompareClaimValues2(IList<Claim> userClaims, string value)
@@ -359,7 +541,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             return userClaims.Any(uc => uc.Value == value);
 
-
         }
 
 
@@ -371,7 +552,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 foreach (var claim2 in userClaims)
                 {
-                    if(claim.Type == claim2.ClaimType && claim2.IsSelected == true)
+                    if (claim.Type == claim2.ClaimType && claim2.IsSelected == true)
                     {
                         selecteduserClaims.Add(claim);
                     }
@@ -380,7 +561,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             return selecteduserClaims;
-          
+
             //return userClaims.Any(uc => uc.Value == value);
         }
 
@@ -577,7 +758,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         // This show how to get List of Objects as Automatic Model Binding when form is posted
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit2(EditUserFormViewModel2 viewModel, string[] selectedRoles)
+        public async Task<ActionResult> Edit2(EditUserFormViewModel2 viewModel)
         {
             // selectedRole is the name of the checkbox list on the html form
 
@@ -599,7 +780,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             IList<Claim> userClaims = await UserManager.GetClaimsAsync(viewModel.Id);
 
             // If SelectedRoles is null, then add Empty String
-            selectedRoles = selectedRoles ?? new string[] { };
+            //selectedRoles = selectedRoles ?? new string[] { };
 
             // not needed as by default initized in constructor
             //selectedClaims = selectedClaims ?? new string[] { };
@@ -625,14 +806,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 // Add Error
                 ModelState.AddModelError("", "Something failed.");
-
-                return View("EditUserForm", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
 
@@ -658,7 +832,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 { ModelState.AddModelError("", error); }
 
                 // show view
-                return View("EditUserForm", new EditUserFormViewModel()
+                return View("EditUserForm2", new EditUserFormViewModel()
                 {
                     Id = user.Id,
                     Email = user.Email,
@@ -668,7 +842,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             // Only add newly added roles, do not add already added roles.
-            result = await UserManager.AddToRolesAsync(user.Id, selectedRoles.Except(userRoles).ToArray<string>());
+            result = await UserManager.AddToRolesAsync(user.Id, viewModel.GetSelectedRoles().Except(userRoles).ToArray<string>());
 
 
             // Error occurs while adding roles array, but user edited
@@ -680,7 +854,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 { ModelState.AddModelError("", error); }
 
                 // Show view
-                return View("EditUserForm", new EditUserFormViewModel()
+                return View("EditUserForm2", new EditUserFormViewModel()
                 {
                     Id = user.Id,
                     Email = user.Email,
@@ -690,7 +864,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             // Remove all roles other than selected roles.
-            result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(selectedRoles).ToArray<string>());
+            result = await UserManager.RemoveFromRolesAsync(user.Id, userRoles.Except(viewModel.GetSelectedRoles()).ToArray<string>());
 
             // Error occurs while removing roles, but user edited, role added, not removed
             if (!result.Succeeded)
@@ -699,7 +873,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm", new EditUserFormViewModel()
+                return View("EditUserForm2", new EditUserFormViewModel()
                 {
                     Id = user.Id,
                     Email = user.Email,
@@ -719,7 +893,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm", new EditUserFormViewModel()
+                return View("EditUserForm2", new EditUserFormViewModel()
                 {
                     Id = user.Id,
                     Email = user.Email,
@@ -730,7 +904,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //IList<Claim> selectedClaimsOnForm = new List<Claim>();
 
-            List<Claim> selectedClaimsOnForm = CompareClaimValues(viewModel.SelectedClaimsList);
+            List<Claim> selectedClaimsOnForm = CompareClaimValues(viewModel.AllClaimsList);
 
             // Adding Claim Array
             foreach (var claim in selectedClaimsOnForm)
@@ -743,7 +917,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm", new EditUserFormViewModel()
+                return View("EditUserForm2", new EditUserFormViewModel()
                 {
                     Id = user.Id,
                     Email = user.Email,
