@@ -100,6 +100,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
         // Show the Create Form
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
         [HttpGet]
         public ActionResult Create2()
         {
@@ -275,7 +278,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
-
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create2(CreateUserFormViewModel2 viewModel)
@@ -362,8 +367,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return List();
             }
 
-
-
             // If some roles are selected for New User, Add those roles
             result = await UserManager.AddToRolesAsync(user.Id, viewModel.GetSelectedRoles());
 
@@ -425,7 +428,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             }
 
-
             ViewBag.Message = "Record(s) addded successfully.";
             return List();
 
@@ -481,6 +483,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
 
         // Show the Edit Form
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
         [HttpGet]
         public async Task<ActionResult> Edit2(string id)
         {
@@ -625,6 +630,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -657,6 +664,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -679,6 +688,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -698,6 +709,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -718,6 +731,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -742,6 +757,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
+                    DrivingLicense = user.DrivingLicense,
+                    Phone = user.Phone,
                     SelectedRolesList = SelectedRolesList,
                     SelectedClaimsList = SelectedClaimsList
                 });
@@ -755,7 +772,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
-        // This show how to get List of Objects as Automatic Model Binding when form is posted
+        // This shows how to Bind List of Objects on the UI.
+        // This show how to get List of Objects as Automatic Model Binding 
+        // when form is posted
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit2(EditUserFormViewModel2 viewModel)
@@ -770,14 +789,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             // MODEL VALIDATION WILL STOP US FROM EDITING USER AND WILL ASK FOR PASSWORKD & CONFIRM PASSWORD
             // SPLIT VIEWS & VIEWMODELS FOR ADD & EDIT
 
-            IdentityResult result = null;
-
             //var user = UserManager.Users.FirstOrDefault(u => u.Id == viewModel.Id);
-
-            ApplicationUser user = await UserManager.FindByIdAsync(viewModel.Id);
-
-            IList<string> userRoles = await UserManager.GetRolesAsync(viewModel.Id);
-            IList<Claim> userClaims = await UserManager.GetClaimsAsync(viewModel.Id);
 
             // If SelectedRoles is null, then add Empty String
             //selectedRoles = selectedRoles ?? new string[] { };
@@ -785,22 +797,23 @@ namespace CleanArchTemplate.AccessControl.Controllers
             // not needed as by default initized in constructor
             //selectedClaims = selectedClaims ?? new string[] { };
 
-            IEnumerable<SelectListItem> SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
-            {
-                Selected = userRoles.Contains(x.Name),
-                Text = x.Name,
-                Value = x.Name
-            });
+            //IEnumerable<SelectListItem> SelectedRolesList = RoleManager.Roles.ToList().Select(x => new SelectListItem()
+            //{
+            //    Selected = userRoles.Contains(x.Name),
+            //    Text = x.Name,
+            //    Value = x.Name
+            //});
 
-            IEnumerable<SelectListItem> SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new SelectListItem()
-            {
-                Selected = userClaims.Any(uc => uc.Value == x.Value),
-                Text = x.Type,
-                Value = x.Value
-            });
+            //IEnumerable<SelectListItem> SelectedClaimsList = ClaimsStore.AllClaims.Select(x => new SelectListItem()
+            //{
+            //    Selected = userClaims.Any(uc => uc.Value == x.Value),
+            //    Text = x.Type,
+            //    Value = x.Value
+            //});
 
-            // User is to be Edited
-
+            IdentityResult result = null;
+            IList<string> userRoles = await UserManager.GetRolesAsync(viewModel.Id);
+            IList<Claim> userClaims = await UserManager.GetClaimsAsync(viewModel.Id);
 
             if (!ModelState.IsValid)
             {
@@ -809,7 +822,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return View("EditUserForm2", viewModel);
             }
 
-
+            ApplicationUser user = await UserManager.FindByIdAsync(viewModel.Id);
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"User with Id = {viewModel.Email} cannot be found";
@@ -831,14 +844,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                // show view
-                return View("EditUserForm2", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
             // Only add newly added roles, do not add already added roles.
@@ -853,14 +859,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                // Show view
-                return View("EditUserForm2", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
             // Remove all roles other than selected roles.
@@ -873,13 +872,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm2", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
             // Removing Claim Array
@@ -893,13 +886,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm2", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
             //IList<Claim> selectedClaimsOnForm = new List<Claim>();
@@ -917,19 +904,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 foreach (var error in result.Errors)
                 { ModelState.AddModelError("", error); }
 
-                return View("EditUserForm2", new EditUserFormViewModel()
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    SelectedRolesList = SelectedRolesList,
-                    SelectedClaimsList = SelectedClaimsList
-                });
+                return View("EditUserForm2", viewModel);
             }
 
             // User Added, Role Added, Role Removed Successfully. Show List Role
             ViewBag.Message = "Record(s) updated successfully.";
             return List();
-
 
         }
 
