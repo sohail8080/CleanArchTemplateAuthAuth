@@ -179,6 +179,8 @@
     <Compile Include="Common\BaseClasses\Application\ViewModelBase.cs" />
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\ErrorController.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\SampleController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\AdminController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UserAdminController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersRolesController.cs" />
@@ -248,6 +250,8 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="500.html" />
+    <Content Include="404.html" />
     <Content Include="Common\Views\404.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -257,6 +261,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="NotFound.html" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="MODULE_AccessControl\Views\web.config" />
@@ -283,6 +288,10 @@
     <Content Include="MODULE_AccessControl\Views\Admin\Users\Delete.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\CreateUserForm2.cshtml" />
     <Content Include="MODULE_AccessControl\Views\Admin\Users\EditUserForm2.cshtml" />
+    <Content Include="Common\Views\NotFound.cshtml" />
+    <Content Include="Common\Views\Error.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Shared\NotFound.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Shared\Error.cshtml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\ConfirmDelete.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
@@ -306,7 +315,7 @@
     </Content>
     <Content Include="Common\Views\Web.config" />
     <Content Include="Common\Views\_ViewStart.cshtml" />
-    <Content Include="Common\Views\Error.cshtml" />
+    <Content Include="MODULE_AccessControl\Views\Error\Error.cshtml" />
     <Content Include="Common\Views\_Layout.cshtml" />
     <Content Include="MODULE_Home\Views\About.cshtml" />
     <Content Include="MODULE_Home\Views\Contact.cshtml" />
@@ -355,7 +364,6 @@
     <Folder Include="MODULE_AccessControl\Domain\Factories\" />
     <Folder Include="MODULE_AccessControl\Domain\Models\DataModelExtentions\" />
     <Folder Include="MODULE_AccessControl\Domain\Services\" />
-    <Folder Include="MODULE_AccessControl\Views\Shared\" />
     <Folder Include="MODULE_Home\App_Services\Commands\" />
     <Folder Include="MODULE_Home\App_Services\Interfaces\" />
     <Folder Include="MODULE_Home\App_Services\Models\" />

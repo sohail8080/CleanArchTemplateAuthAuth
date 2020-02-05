@@ -45,6 +45,12 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         ////////////////Below Controller Methods//////////////////////
 
+        [HttpGet]
+        public ActionResult Index()
+        {
+            throw new Exception("Exception happens on server.");
+        }
+
 
         [HttpGet]
         public ActionResult List()
