@@ -14,6 +14,8 @@ using CleanArchTemplate.Common.BaseClasses;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
+    // not working 
+
     [AllowAnonymous]
     public class ErrorController : BaseController
     {

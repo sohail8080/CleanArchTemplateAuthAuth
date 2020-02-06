@@ -27,6 +27,11 @@
                     }
                 }
 
+                        <li>
+                            @Html.ActionLink("Error", "Index", "Users", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageUsersLink" })
+                        </li>
+                
+
             </ul>
             @Html.Partial("_LoginPartial")
         </div>

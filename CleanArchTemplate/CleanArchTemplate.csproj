@@ -179,13 +179,16 @@
     <Compile Include="Common\BaseClasses\Application\ViewModelBase.cs" />
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
-    <Compile Include="MODULE_AccessControl\Controllers\ErrorController.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorController.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorController2.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\SampleController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\AdminController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UserAdminController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\UsersRolesController.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationRole.cs" />
     <Compile Include="MODULE_AccessControl\Domain\Models\ApplicationUser.cs" />
+    <Compile Include="MODULE_AccessControl\ErrorHandling\CustomAuthorizeAttribute.cs" />
+    <Compile Include="MODULE_AccessControl\ErrorHandling\HandleErrorAttribute.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\ClaimsStore.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\UOW\AccessControlBoundedContext.cs" />
     <Compile Include="MODULE_AccessControl\Persistence\UOW\AccountDbContext.cs" />
@@ -250,6 +253,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="400.html" />
     <Content Include="500.html" />
     <Content Include="404.html" />
     <Content Include="Common\Views\404.html" />

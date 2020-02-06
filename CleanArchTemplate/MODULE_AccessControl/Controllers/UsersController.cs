@@ -45,10 +45,34 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         ////////////////Below Controller Methods//////////////////////
 
+        [AllowAnonymous]
         [HttpGet]
         public ActionResult Index()
         {
-            throw new Exception("Exception happens on server.");
+            //throw new Exception("Exception happens on server.");
+
+            return HttpNotFound();
+
+            //return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            //return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+
+            //Response.StatusCode = 400;// Bad Request
+            //Response.StatusCode = 404;// Resource Not Found
+            //Response.StatusCode = 500;// Internal Server Error
+            //return Content("Hello world");
+
+            //following http execeptions in cont.Acations are handeled
+            //by following snippet inside the web.config
+            //< customErrors mode = "On" >
+            //< error statusCode = "400" redirect = "~/400.html" />
+            //<error statusCode = "404" redirect = "~/404.html" />
+            //< error statusCode = "500" redirect = "~/500.html" />
+            //</ customErrors >
+            //throw new HttpException(400, "Bad Request");
+            //throw new HttpException(404, "Resource Not Found");
+            //throw new HttpException(500, "Internal Server Error");
+
         }
 
 
