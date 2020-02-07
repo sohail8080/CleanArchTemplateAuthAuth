@@ -1,7 +1,10 @@
 ﻿using CleanArchTemplate.AccessControl.Controllers;
+using CleanArchTemplate.AccessControl.Controllers.ErrorControllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -11,7 +14,7 @@ namespace CleanArchTemplate
 {
     public class MvcApplication : System.Web.HttpApplication
     {
-
+        //private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         protected void Application_Start()
         {
@@ -26,8 +29,16 @@ namespace CleanArchTemplate
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
+
+            //WebApiConfig.Register(GlobalConfiguration.Configuration);
+            //AuthConfig.RegisterAuth();
+            //// Calling Global action filter
+            //GlobalFilters.Filters.Add(new MyExceptionHandler());
+
             // To handle exceptions
             //GlobalFilters.Filters.Add(new CustomExceptionFilter());///////////
+
+            //_log.Info("Application started");
 
         }
 
@@ -52,6 +63,94 @@ namespace CleanArchTemplate
         {
 
 
+        }
+
+
+        protected void Application_Error45333(object sender, EventArgs e)
+        {
+            Exception ex = Server.GetLastError();
+            if (ex != null)
+            {
+                StringBuilder err = new StringBuilder();
+                err.Append("Error caught in Application_Error event\n");
+                err.Append("Error in: " + (Context.Session == null ? string.Empty : Request.Url.ToString()));
+                err.Append("\nError Message:" + ex.Message);
+                if (null != ex.InnerException)
+                    err.Append("\nInner Error Message:" + ex.InnerException.Message);
+                err.Append("\n\nStack Trace:" + ex.StackTrace);
+                Server.ClearError();
+
+                if (null != Context.Session)
+                {
+                    err.Append($"Session: Identity name:[{Thread.CurrentPrincipal.Identity.Name}] IsAuthenticated:{Thread.CurrentPrincipal.Identity.IsAuthenticated}");
+                }
+                //_log.Error(err.ToString());
+
+                if (null != Context.Session)
+                {
+                    var routeData = new RouteData();
+                    routeData.Values.Add("controller", "ErrorPage");
+                    routeData.Values.Add("action", "Error");
+                    routeData.Values.Add("exception", ex);
+
+                    if (ex.GetType() == typeof(HttpException))
+                    {
+                        routeData.Values.Add("statusCode", ((HttpException)ex).GetHttpCode());
+                    }
+                    else
+                    {
+                        routeData.Values.Add("statusCode", 500);
+                    }
+                    Response.TrySkipIisCustomErrors = true;
+                    IController controller = new ErrorPageController();
+                    controller.Execute(new RequestContext(new HttpContextWrapper(Context), routeData));
+                    Response.End();
+                }
+            }
+
+        }
+
+        protected void Application_Error8887(object sender, EventArgs e)
+        {
+            Exception ex = Server.GetLastError();
+            if (ex != null)
+            {
+                StringBuilder err = new StringBuilder();
+                err.Append("Error caught in Application_Error event\n");
+                err.Append("Error in: " + (Context.Session == null ? string.Empty : Request.Url.ToString()));
+                err.Append("\nError Message:" + ex.Message);
+                if (null != ex.InnerException)
+                    err.Append("\nInner Error Message:" + ex.InnerException.Message);
+                err.Append("\n\nStack Trace:" + ex.StackTrace);
+                Server.ClearError();
+
+                if (null != Context.Session)
+                {
+                    err.Append($"Session: Identity name:[{Thread.CurrentPrincipal.Identity.Name}] IsAuthenticated:{Thread.CurrentPrincipal.Identity.IsAuthenticated}");
+                }
+                //_log.Error(err.ToString());
+
+                if (null != Context.Session)
+                {
+                    var routeData = new RouteData();
+                    routeData.Values.Add("controller", "ErrorPage");
+                    routeData.Values.Add("action", "Error");
+                    routeData.Values.Add("exception", ex);
+
+                    if (ex.GetType() == typeof(HttpException))
+                    {
+                        routeData.Values.Add("statusCode", ((HttpException)ex).GetHttpCode());
+                    }
+                    else
+                    {
+                        routeData.Values.Add("statusCode", 500);
+                    }
+                    Response.TrySkipIisCustomErrors = true;
+                    IController controller = new ErrorPageController();
+                    controller.Execute(new RequestContext(new HttpContextWrapper(Context), routeData));
+                    Response.End();
+                }
+            }
         }
 
 
@@ -181,6 +280,82 @@ namespace CleanArchTemplate
         //}
         //   //////////////////////////////////////////////////
 
+
+        protected void Application_Error88()
+        {
+            var exception = Server.GetLastError();
+            var httpException = exception as HttpException;
+            // Do logging here
+        }
+
+
+        protected void Application_Error66()
+        {
+
+            if (Context.IsCustomErrorEnabled)
+                ShowCustomErrorPage(Server.GetLastError());
+
+        }
+        private void ShowCustomErrorPage(Exception exception)
+        {
+            var httpException = exception as HttpException ?? new HttpException(500, "Internal Server Error", exception);
+
+            Response.Clear();
+            var routeData = new RouteData();
+            routeData.Values.Add("controller", "Error");
+            routeData.Values.Add("fromAppErrorEvent", true);
+
+            switch (httpException.GetHttpCode())
+            {
+                case 403:
+                    routeData.Values.Add("action", "HttpError403");
+                    break;
+
+                case 404:
+                    routeData.Values.Add("action", "HttpError404");
+                    break;
+
+                case 500:
+                    routeData.Values.Add("action", "HttpError500");
+                    break;
+
+                default:
+                    routeData.Values.Add("action", "GeneralError");
+                    routeData.Values.Add("httpStatusCode", httpException.GetHttpCode());
+                    break;
+            }
+
+            Server.ClearError();
+
+            IController controller = new ErrorController();
+            controller.Execute(new RequestContext(new HttpContextWrapper(Context), routeData));
+        }
+
+        public void Application_Error555(Object sender, EventArgs e)
+        {
+            Exception exception = Server.GetLastError();
+            Server.ClearError();
+
+            var routeData = new RouteData();
+            routeData.Values.Add("controller", "ErrorPage");
+            routeData.Values.Add("action", "Error");
+            routeData.Values.Add("exception", exception);
+
+            if (exception.GetType() == typeof(HttpException))
+            {
+                routeData.Values.Add("statusCode", ((HttpException)exception).GetHttpCode());
+            }
+            else
+            {
+                routeData.Values.Add("statusCode", 500);
+            }
+
+            Response.TrySkipIisCustomErrors = true;
+            IController controller = new ErrorPageController();
+            controller.Execute(new RequestContext(new HttpContextWrapper(Context), routeData));
+            Response.End();
+        }
+
         // Calls at the end of every request
         protected void Application_EndRequest()
         {
@@ -255,7 +430,7 @@ namespace CleanArchTemplate
         }
 
 
-
+    }
 
     }
-}
+

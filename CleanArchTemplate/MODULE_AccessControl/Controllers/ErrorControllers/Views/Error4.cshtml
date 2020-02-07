@@ -1,0 +1,25 @@
+﻿@*~/Views/Home/Error.cshtml:
+
+@{
+    ViewBag.Title = "Error";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Error</h2>
+<hr />
+
+<div style="min-height: 400px;">
+
+    @Html.ValidationMessage("Error")
+
+    <br />
+    <br />
+
+    <button onclick="Error_goBack()" class="k-button">Go Back</button>
+    <script>
+        function Error_goBack() {
+            window.history.back()
+        }
+    </script>
+
+</div>*@
