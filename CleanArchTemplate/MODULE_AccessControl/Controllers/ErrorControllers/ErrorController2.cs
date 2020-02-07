@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace CleanArchTemplate.MODULE_AccessControl.Controllers.ErrorControllers
+namespace CleanArchTemplate.AccessControl.Controllers.ErrorControllers
 {
 
     [HandleError]

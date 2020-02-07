@@ -50,7 +50,11 @@ namespace CleanArchTemplate
             // handled by the this. nothing in web.config will work
             // if following is commented only then Custom Errors will 
             // work in the web.config
-           filters.Add(new HandleErrorAttribute());
+           //filters.Add(new HandleErrorAttribute());
+
+
+            // To handle exceptions
+            //filters.Add(new CustomExceptionFilter());///////////
 
             // If Most of the Use Cases of Application are password protected
             // and some UCs are for Anonymous Users, then apply filter on Global 

@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace CleanArchTemplate.MODULE_AccessControl.ErrorHandling
+namespace CleanArchTemplate.AccessControl.ErrorHandling
 {
     public class CustomAuthorizeAttribute : AuthorizeAttribute
     {
