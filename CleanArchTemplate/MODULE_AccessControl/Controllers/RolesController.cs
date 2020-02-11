@@ -52,7 +52,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
 
             //var roles = await RoleManager.Roles.ToListAsync();
-            var roles = RoleManager.Roles.Include(u => u.Users).ToList();           
+            var roles = RoleManager.Roles.Include(u => u.Users).ToList();
             return View("List", roles);
 
             // Following we get All Roles by EF Repo
@@ -104,7 +104,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            var viewModel = new RoleFormViewModel();            
+            var viewModel = new RoleFormViewModel();
             return View("RoleForm", viewModel);
         }
 
@@ -129,7 +129,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
 
             var viewModel = new RoleFormViewModel(role);
-           
+
             return View("RoleForm", viewModel);
         }
 
@@ -184,35 +184,35 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // Edit Role Case
 
 
-                    //var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
-                    var role = await RoleManager.FindByIdAsync(viewModel.Id);
+                //var roleInDB = _context.Roles.FirstOrDefault(r => r.Id == viewModel.Id);
+                var role = await RoleManager.FindByIdAsync(viewModel.Id);
 
-                    if (role == null)
-                    {
+                if (role == null)
+                {
 
-                        ViewBag.ErrorMessage = $"Role with Id = {viewModel.Id} cannot be found";
-                        return View("NotFound");
-                        //return HttpNotFound();
-                    }
+                    ViewBag.ErrorMessage = $"Role with Id = {viewModel.Id} cannot be found";
+                    return View("NotFound");
+                    //return HttpNotFound();
+                }
 
-                    role.Name = viewModel.Name;
-                    IdentityResult result = await RoleManager.UpdateAsync(role);
+                role.Name = viewModel.Name;
+                IdentityResult result = await RoleManager.UpdateAsync(role);
 
-                    //HandleUpdateResult(_context.SaveChanges());
-                    //HandleUpdateResult(result);
+                //HandleUpdateResult(_context.SaveChanges());
+                //HandleUpdateResult(result);
 
-                    if (result.Succeeded)
-                    {
-                        ViewBag.Message = "Record(s) updated successfully.";
-                        return List();
-                    }
-                    else
-                    {
-                        ViewBag.Message = "Error occurred while updating Record(s)";
-                        foreach (var error in result.Errors)
-                        { ModelState.AddModelError("", error); }
-                        return View("RoleForm", viewModel);
-                    }
+                if (result.Succeeded)
+                {
+                    ViewBag.Message = "Record(s) updated successfully.";
+                    return List();
+                }
+                else
+                {
+                    ViewBag.Message = "Error occurred while updating Record(s)";
+                    foreach (var error in result.Errors)
+                    { ModelState.AddModelError("", error); }
+                    return View("RoleForm", viewModel);
+                }
 
 
 
@@ -352,8 +352,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
         }
 
 
-
-
         public IEnumerable<ApplicationUser> GetApplicationUsersInRole(string roleName)
         {
             return from role in RoleManager.Roles
@@ -375,6 +373,40 @@ namespace CleanArchTemplate.AccessControl.Controllers
                        select user;
 
             return list;
+        }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_userManager != null)
+                {
+                    _userManager.Dispose();
+                    _userManager = null;
+                }
+
+                if (_signInManager != null)
+                {
+                    _signInManager.Dispose();
+                    _signInManager = null;
+                }
+
+                if (_roleManager != null)
+                {
+                    _roleManager.Dispose();
+                    _roleManager = null;
+                }
+
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+
+            }
+
+            base.Dispose(disposing);
         }
 
 

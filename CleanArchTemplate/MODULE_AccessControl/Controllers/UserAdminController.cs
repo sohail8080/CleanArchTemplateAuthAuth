@@ -1,6 +1,7 @@
 ﻿using CleanArchTemplate;
 using CleanArchTemplate.AccessControl.Domain;
 using CleanArchTemplate.AccessControl.ViewModels;
+using CleanArchTemplate.Common.BaseClasses;
 using Microsoft.AspNet.Identity.Owin;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -13,7 +14,7 @@ using System.Web.Mvc;
 namespace CleanArchTemplate.AccessControl.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class UsersAdminController : Controller
+    public class UsersAdminController : BaseController
     {
         public UsersAdminController()
         {
@@ -23,32 +24,6 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             UserManager = userManager;
             RoleManager = roleManager;
-        }
-
-        private ApplicationUserManager _userManager;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
-        private ApplicationRoleManager _roleManager;
-        public ApplicationRoleManager RoleManager
-        {
-            get
-            {
-                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
-            }
-            private set
-            {
-                _roleManager = value;
-            }
         }
 
 
@@ -374,6 +349,40 @@ namespace CleanArchTemplate.AccessControl.Controllers
             };
 
             return ViewModel;
+        }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_userManager != null)
+                {
+                    _userManager.Dispose();
+                    _userManager = null;
+                }
+
+                if (_signInManager != null)
+                {
+                    _signInManager.Dispose();
+                    _signInManager = null;
+                }
+
+                if (_roleManager != null)
+                {
+                    _roleManager.Dispose();
+                    _roleManager = null;
+                }
+
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+
+            }
+
+            base.Dispose(disposing);
         }
 
     }

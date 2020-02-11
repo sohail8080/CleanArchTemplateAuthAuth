@@ -65,7 +65,7 @@ namespace CleanArchTemplate
 
             //     Represents an attribute that forces an unsecured HTTP request to be re-sent over
             //     HTTPS.
-            //filters.Add(new RequireHttpsAttribute());
+            filters.Add(new RequireHttpsAttribute());
         }
     }
 }

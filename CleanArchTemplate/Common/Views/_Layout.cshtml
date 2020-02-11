@@ -14,8 +14,24 @@
         @RenderBody()
         <hr />
         <footer>
+            @{
+                if (!string.IsNullOrEmpty(ViewBag.Link))
+                {
+                    <p class="text-danger">
+                        For local debug  only: confirmation link: <a href="@ViewBag.Link">link</a>
+                    </p>
+                }
+                if (!String.IsNullOrEmpty(ViewBag.Code))
+                {
+                    <p class="text-danger">
+                        For local debug only: @ViewBag.Code
+                    </p>
+                }
+            }
             <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
         </footer>
+
+
     </div>
 
     @Scripts.Render("~/bundles/jquery")

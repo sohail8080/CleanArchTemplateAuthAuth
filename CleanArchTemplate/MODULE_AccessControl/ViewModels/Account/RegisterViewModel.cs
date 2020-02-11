@@ -15,7 +15,7 @@ namespace CleanArchTemplate.AccessControl.ViewModels
 
         //[ValidEmailDomain(allowedDomain: "pragimtech.com",
         //ErrorMessage = "Email domain must be pragimtech.com")]
-        [Remote(action: "IsEmailInUse", controller: "Account", areaName: "AccessControl", ErrorMessage = "sdasadasdas")]
+        [Remote(action: "IsEmailInUse", controller: "Account", areaName: "AccessControl", ErrorMessage = "Email already in use.")]
         [Required(AllowEmptyStrings = false)]
         [EmailAddress]
         [Editable(true)]

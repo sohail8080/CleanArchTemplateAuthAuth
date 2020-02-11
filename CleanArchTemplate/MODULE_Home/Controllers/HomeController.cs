@@ -15,6 +15,7 @@ namespace CleanArchTemplate.Home.Controllers
     {        
         public ActionResult Index()
         {
+            ViewBag.Link = TempData["ViewBagLink"];
             ViewBag.Message = "Your application home page.";
             return View("Index");
         }

@@ -61,7 +61,7 @@ namespace CleanArchTemplate
         // Not called if Response.StatusCode = 500;// Internal Server Error return Content("Hello world");
         protected void Application_Error()
         {
-
+            Exception ex = Server.GetLastError();
 
         }
 

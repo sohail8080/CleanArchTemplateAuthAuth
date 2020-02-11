@@ -63,9 +63,37 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 return View("Login", model);
             }
 
+            // =============== EMAIL CONFIRMATION NEEDED=====================
+            // Commnet this block if Email Confirmation no needed
+            // Require the user to have a confirmed email before they can log on.
+
+            //var user = await UserManager.FindByNameAsync(model.Email);
+            var user = UserManager.Find(model.Email, model.Password);
+
+            if (user != null)
+            {
+                if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                {
+                    string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account-Resend");
+                    
+                    // Uncomment to debug locally  
+                    ViewBag.Link = callbackUrl;
+
+                    return View("ConfirmEmailInfoAfterLogin");
+                    //ViewBag.errorMessage = "You must have a confirmed email to log on.";
+                    //return View("Error");
+                }
+            }
+            // =============== EMAIL CONFIRMATION NEEDED=====================
+
             // This doesn't count login failures towards account lockout only two factor authentication
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await SignInManager.PasswordSignInAsync(
+                               userName: model.Email,
+                               password: model.Password,
+                               isPersistent: model.RememberMe,
+                               shouldLockout: false);
+
             switch (result)
             {
                 // defaults routing rule define in the RouteConfig.cs
@@ -73,9 +101,19 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 // login if there is not return url. it should be explicit here
                 // Check URL is local Url.IsLocalUrl(returnUrl)
 
+                // Lockout functionality is already there, we need to invoke it by seding 
+                // shouldLockout: true in above statement. we can configure the 
+                // FailtureAttempts before lockout LockoutTime in the 
+                // ApplicationUserManager in Statrup ==> Identity class
+
+                // Requires Verification is used if 2FA is enabled.
+                // After UserName, password we get Confirmation Code by SMS 
+                // We put that Confirmation Code in App and then Login. 2 Step Login
+                //  Sign in requires addition verification (i.e. two factor)
+
                 case SignInStatus.Success:
                     if (string.IsNullOrEmpty(returnUrl))
-                    { return RedirectToAction("Index", "Home", new { area = "Home" });}
+                    { return RedirectToAction("Index", "Home", new { area = "Home" }); }
                     else
                     {
                         if (Url.IsLocalUrl(returnUrl))
@@ -95,24 +133,31 @@ namespace CleanArchTemplate.AccessControl.Controllers
             }
         }
 
-        //
+        // Show screen to provide SMS Code to Verify
         // GET: /Account/VerifyCode
+        [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
         {
             // Require that the user has already logged in via username/password or 
             //external login
+            // Has the user been verified (ie either via password or external login)
             if (!await SignInManager.HasBeenVerifiedAsync())
             {
                 return View("Error");
             }
 
             // Copied from Indenity Sample, do not know what following code does
-            //var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
-            //if (user != null)
-            //{
-            //ViewBag.Status = "For DEMO purposes the current " + provider + " code is: " + await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
-            //}
+            var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
+            // Following IF block is for Debugging
+            if (user != null)
+            {
+                // Get a token for a specific two factor provider
+                var code = await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+                // Remove for Debug
+                ViewBag.Code = code;
+                ViewBag.Status = "For DEMO purposes the current " + provider + " code is: " + await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+            }
 
 
             return View("VerifyCode", new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
@@ -186,54 +231,90 @@ namespace CleanArchTemplate.AccessControl.Controllers
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
             // Get Data as View Model from View, Validate ViewModel
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                // Creat the Domain Object                
-                var user = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    DrivingLicense = model.DrivingLicense,// New Properties
-                    Phone = model.Phone, // New Properties
-                };
-
-                // pass the Domain Object to the Service UserManager
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-
-                    // Code to Create User with Role, Role, UserRole
-                    var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
-                    var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
-                    await roleManager.CreateAsync(new IdentityRole(RoleName.Admin)); // Create Role in DB
-                    await UserManager.AddToRoleAsync(user.Id, RoleName.Admin); // Add UserRole in DB
-
-                    // Ever newly singned in User is assigned the Role of Customer
-                    //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
-
-                    // After Registration we are automatically Signed In. If you do not want
-                    // Immediate Sign In, but need Email Confirmation First, comment below line
-                    // and uncomment following 3 lines.
-                    // Following AS Signin the User after makeing enttry to DB
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-
-                    // For more information on how to enable account confirmation and 
-                    //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                    // Send an email with this link
-
-                    // While registering, if you need Email Confirmation, uncomment
-                    // following 3 lines and comment the above line.
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-                    return RedirectToAction("Index", "Home", new { area = "Home" });
-                }
-                AddErrors(result);
+                // If we got this far, something failed, redisplay form
+                return View("Register", model);
             }
 
-            // If we got this far, something failed, redisplay form
-            return View("Register", model);
+            // Creat the Domain Object                
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                DrivingLicense = model.DrivingLicense,// New Properties
+                Phone = model.Phone, // New Properties
+            };
+
+            // pass the Domain Object to the Service UserManager
+            var result = await UserManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                AddErrors(result);
+                return View("Register", model);
+            }
+
+            // Comment this Mosh code this only to Create User with Role, Role, UserRole
+            //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());// Repo Role Class
+            //var roleManager = new RoleManager<IdentityRole>(roleStore); // Creat Role Service
+            //await roleManager.CreateAsync(new IdentityRole(RoleName.Admin)); // Create Role in DB
+            //await UserManager.AddToRoleAsync(user.Id, RoleName.Admin); // Add UserRole in DB
+
+            // Ever newly singned in User is assigned the Role of Customer
+            //await UserManager.AddToRoleAsync(user.Id, "Customer"); // Add UserRole in DB
+
+
+
+
+            //===================== NO EMAIL CONFIRMATION===================
+            // After Registration we are automatically Signed In. If you do not want
+            // Immediate Sign In, but need Email Confirmation First, comment below line
+            // and uncomment following lines.
+            // Following AS Signin the User after makeing enttry to DB
+            //await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+            //return RedirectToAction("Index", "Home", new { area = "Home" });
+            // ==================== NO EMAIL CONFIRMATION =====================
+
+
+
+            // =============== EMAIL CONFIRMATION NEEDED=====================
+            // Commnet this block if Email Confirmation no needed
+            // For more information on how to enable account confirmation and 
+            //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+            // Send an email with this link
+
+            // While registering, if you need Email Confirmation, uncomment
+            // following 4 lines and comment the above 2 lines.
+
+            // Helper Method is defined for following 3 lines, commented
+            //string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+            //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+            //await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+            string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+
+            // Uncomment to debug locally 
+            //Folloiwng line can be used to 
+            //debug the app and test registration without sending email. 
+            TempData["ViewBagLink"] = callbackUrl;
+            ViewBag.Link = callbackUrl;
+            return View("ConfirmEmailInfoSRegister");
+            // =============== EMAIL CONFIRMATION NEEDED=====================
+        }
+
+        private async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject)
+        {
+            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userID);
+
+            var callbackUrl = Url.Action("ConfirmEmail", "Account",
+               new { userId = userID, code = code }, protocol: Request.Url.Scheme);
+
+            await UserManager.SendEmailAsync(userID, subject,
+               "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+            return callbackUrl;
         }
 
 
@@ -293,27 +374,34 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
-                }
-
-                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account", new { area = "AccessControl"});
+                // If we got this far, something failed, redisplay form
+                return View("ForgotPassword", model);
             }
 
-            // If we got this far, something failed, redisplay form
-            return View("ForgotPassword", model);
-        }
+            var user = await UserManager.FindByNameAsync(model.Email);
 
+            if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+            {
+                // Don't reveal that the user does not exist or is not confirmed
+                return View("ForgotPasswordConfirmation");
+            }
+
+            // For more information on how to enable account confirmation and 
+            //password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+            // Send an email with this link
+            string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+            await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+            // following 2 line for deubgging, 
+            TempData["ViewBagLink"] = callbackUrl;
+            ViewBag.Link = callbackUrl;
+
+            return RedirectToAction("ForgotPasswordConfirmation", "Account", new { area = "AccessControl" });
+
+        }
 
         // Taken from Identity Sample, use for Email Confirmation
         // POST: /Account/ForgotPassword
@@ -349,6 +437,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [AllowAnonymous]
         public ActionResult ForgotPasswordConfirmation()
         {
+            ViewBag.Link = TempData["ViewBagLink"];
             return View("ForgotPasswordConfirmation");
         }
 
@@ -371,6 +460,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 return View("ResetPassword", model);
             }
+
             var user = await UserManager.FindByNameAsync(model.Email);
             if (user == null)
             {
@@ -547,6 +637,19 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     _signInManager.Dispose();
                     _signInManager = null;
                 }
+
+                if (_roleManager != null)
+                {
+                    _roleManager.Dispose();
+                    _roleManager = null;
+                }
+
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+               
             }
 
             base.Dispose(disposing);
