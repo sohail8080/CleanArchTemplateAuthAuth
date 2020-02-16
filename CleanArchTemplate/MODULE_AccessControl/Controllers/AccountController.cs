@@ -423,6 +423,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
                 ViewBag.Link = callbackUrl;
+                TempData["ViewBagLink"] = callbackUrl;
                 return View("ForgotPasswordConfirmation");
             }
 

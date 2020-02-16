@@ -117,7 +117,7 @@ namespace CleanArchTemplate
             MailMessage mail = new MailMessage();
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
 
-            mail.From = new MailAddress("sohail8080@gmail.com");
+            mail.From = new MailAddress("xxxxxxx@gmail.com");
             mail.To.Add(message.Destination);
             mail.Subject = message.Subject;
             mail.Body = message.Body;
@@ -272,5 +272,30 @@ namespace CleanArchTemplate
                 }
             }
         }
+
+
+
+        public Task SendAsyncScottHaselman(IdentityMessage message)
+        {
+            string text = message.Body;
+            string html = message.Body;
+            //do whatever you want to the message        
+            MailMessage msg = new MailMessage();
+            msg.From = new MailAddress("scott@hanselman.com");
+            msg.To.Add(new MailAddress(message.Destination));
+            msg.Subject = message.Subject;
+            msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(text, null, MediaTypeNames.Text.Plain));
+            msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(html, null, MediaTypeNames.Text.Html));
+
+            SmtpClient smtpClient = new SmtpClient("smtp.whatever.net", Convert.ToInt32(587));
+            System.Net.NetworkCredential credentials = new System.Net.NetworkCredential(Keys.EmailUser, Keys.EMailKey);
+            smtpClient.Credentials = credentials;
+            smtpClient.Send(msg);
+
+            return Task.FromResult(0);
+        }
+
+
+
     }
 }

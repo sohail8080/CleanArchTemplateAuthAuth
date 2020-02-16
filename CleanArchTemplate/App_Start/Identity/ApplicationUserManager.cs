@@ -118,7 +118,9 @@ namespace CleanArchTemplate
             });
 
 
+            //     Used to send email
             manager.EmailService = new EmailService();
+            //     Used to send a sms message
             manager.SmsService = new SmsService();
 
             var dataProtectionProvider = options.DataProtectionProvider;
