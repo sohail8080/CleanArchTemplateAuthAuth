@@ -72,7 +72,7 @@ namespace CleanArchTemplate
 
             // Class creating the objet of itself
             var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
-            
+
             // Configure validation logic for usernames
             // What type of UserName are allow and not allowed
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
@@ -100,22 +100,41 @@ namespace CleanArchTemplate
             manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
             manager.MaxFailedAccessAttemptsBeforeLockout = 5;
 
+            // Our standard application at this point has 2 token providers registered,
+            // namely the PhoneNumberTokenProvider and EmailTokenProvider.
+            // These are used to send 2 factor authentication tokens to a 
+            // user’s cellphone number and email address respectively.
+            // The samples package automatically created the code which 
+            // enable these 2 providers and it can be found in the 
+            // App_Start\IdentityConfig.cs class:
+
             // Register two factor authentication providers. 
             // This application uses Phone and Emails as a step of receiving 
             // a code for verifying the user
             // You can write your own provider and plug it in here.
-            manager.RegisterTwoFactorProvider("Phone Code", 
-                new PhoneNumberTokenProvider<ApplicationUser>
-            {
-                MessageFormat = "Your security code is {0}"
-            });
 
-            manager.RegisterTwoFactorProvider("Email Code", 
+            // WHILE USER LOGIN, 2FA CODES CAN BE SEND BY THE EMAIL OR PHONE            
+
+            //     Register a two factor authentication provider with the TwoFactorProviders 
+            //     mapping
+            //     TokenProvider that generates tokens from the user's security stamp 
+            //     and notifies a user via their phone number
+
+            manager.RegisterTwoFactorProvider("Phone Code",
+                    new PhoneNumberTokenProvider<ApplicationUser>
+                    {
+                        MessageFormat = "Your security code is {0}"
+                    });
+
+            //     TokenProvider that generates tokens from the user's 
+            // security stamp and notifies
+            //     a user via their email
+            manager.RegisterTwoFactorProvider("Email Code",
                 new EmailTokenProvider<ApplicationUser>
-            {
-                Subject = "Security Code",
-                BodyFormat = "Your security code is {0}"
-            });
+                {
+                    Subject = "Security Code",
+                    BodyFormat = "Your security code is {0}"
+                });
 
 
             //     Used to send email
@@ -133,5 +152,29 @@ namespace CleanArchTemplate
             // Return the Configured User Manager
             return manager;
         }
+
+
+        public bool HasPassword(string userId)
+        {
+            var user = this.FindById(userId);
+            if (user != null)
+            {
+                return user.PasswordHash != null;
+            }
+            return false;
+        }
+
+
+        public bool HasPhoneNumber(string userId)
+        {
+            var user = this.FindById(userId);
+            if (user != null)
+            {
+                return user.PhoneNumber != null;
+            }
+            return false;
+        }
+
+
     }
 }

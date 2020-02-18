@@ -226,6 +226,7 @@
     <Compile Include="App_Start\Identity\ApplicationUserManager.cs" />
     <Compile Include="App_Start\Identity\EmailService.cs" />
     <Compile Include="App_Start\Identity\EmailService2.cs" />
+    <Compile Include="App_Start\Identity\Keys.cs" />
     <Compile Include="App_Start\Identity\SmsService.cs" />
     <Compile Include="Common\BaseClasses\Application\ViewModelBase.cs" />
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
@@ -546,7 +547,9 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>

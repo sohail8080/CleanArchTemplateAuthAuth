@@ -95,17 +95,19 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 message = ManageMessageId.Error;
             }
-            return RedirectToAction("ManageLogins", new { Message = message });
+
+            //return RedirectToAction("ManageLogins", new { Message = message });
+            return RedirectToAction("ManageLogins", "Manage", new { area = "AccessControl", Message = message });
         }
 
-        //
+        // Just show the Screen to input the Mobile Number
         // GET: /Manage/AddPhoneNumber
         public ActionResult AddPhoneNumber()
         {
             return View("AddPhoneNumber");
         }
 
-        //
+        // This Screen is used to get User Phone, Send SMS to that Phone, Ask for Validation
         // POST: /Manage/AddPhoneNumber
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -115,8 +117,42 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 return View("AddPhoneNumber", model);
             }
+
+            // To use your phone number for 2 Factor Authentication you will need 
+            // to add it to your user account first.
+
+
+            //After you have confirmed the new phone number you can use it to 
+            // receive your 2 Factor Authentication security code when logging in. 
+            // To test this make sure you log out of the application and log in to
+            // the application again.  After logging in using your email address 
+            // and password you will be presented with a page where you can specify
+            // where you want to send the 2 Factor Authentication security code to.
+            // We have added both an email address and phone number we can send it 
+            // to either, but for the purposes of this demo we will select PhoneCode 
+            // in order to send an SMS to our phone number.
+
             // Generate the token and send it
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
+            // Generate a code that the user can use to change their phone number to a specific
+            // number
+            // This Code will be send to the User Mobile Number
+            // For Mobile Number Verification, User will Re-Type this Code
+            // to verify that Phone Number is his phone number.
+
+          // The 2FA codes are generated using Time - based One - time Password 
+          // Algorithm and codes are valid for six minutes. If you take more than 
+          // six minutes to enter the code, you'll get an Invalid code error message.
+
+          // You can add more 2FA providers such as QR code generators or 
+          // you can write you own(See Using Google Authenticator 
+          // with ASP.NET Identity).
+
+          // Code/Token to Verify Phone != Code to Signin under 2FA
+          var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
+
+            // If the SMS service is configured, then Send Code to the SMS
+            // This is done only to ensure the User on the Computer is providing the 
+            // Phone number he has in his hand. It is not some ones else.
             if (UserManager.SmsService != null)
             {
                 var message = new IdentityMessage
@@ -124,9 +160,14 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     Destination = model.Number,
                     Body = "Your security code is: " + code
                 };
+
+                // With No implementaiton nothing is done and success response is returned.
                 await UserManager.SmsService.SendAsync(message);
             }
-            return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
+
+            // Redirect to VerifyPhoneNumber Screen.
+            //return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
+            return RedirectToAction("VerifyPhoneNumber", "Manage", new { area = "AccessControl", PhoneNumber = model.Number });
         }
 
 
@@ -138,7 +179,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         {
             var rememberBrowserIdentity = AuthenticationManager.CreateTwoFactorRememberBrowserIdentity(User.Identity.GetUserId());
             AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = true }, rememberBrowserIdentity);
-            return RedirectToAction("Index", "Manage");
+
+            //return RedirectToAction("Index", "Manage");
+            return RedirectToAction("Index", "Manage", new { area = "AccessControl" });
         }
 
         // Coped from Indentity sample i do not know used where
@@ -147,8 +190,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ForgetBrowser()
         {
+
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
-            return RedirectToAction("Index", "Manage");
+
+            //return RedirectToAction("Index", "Manage");
+            return RedirectToAction("Index", "Manage", new { area = "AccessControl" });
         }
 
 
@@ -158,12 +204,26 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EnableTwoFactorAuthentication()
         {
+            //Set two factor authentication enabled for a user.
             await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
+                //     Creates a user identity and then signs the identity using the 
+                //AuthenticationManager
+                // I think this refresh the Login Cookie after enabling the 2FA
+
+                //Note the SignInAsync must be called because enable 2FA is a 
+                //change to  the security profile. When 2FA is enabled, 
+                // the user will need to use 2FA to log in, 
+                // using the 2FA approaches they have registered
+                // (SMS and email in the sample).
+                // Adding 2FA approaches is a seperate step, it could be Email/SMS
+                // Enabbling/Disabling the 2FA is seperate step, 
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
             }
+
+            // If User not found, then go to Index Page
             return RedirectToAction("Index", "Manage", new { area = "AccessControl" });
         }
 
@@ -173,24 +233,54 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DisableTwoFactorAuthentication()
         {
+            // Set 2fa disabled
             await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
+                // Refresh Login Cookie
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
             }
             return RedirectToAction("Index", "Manage", new { area = "AccessControl" });
         }
 
-        //
+        // We get to this View when we ADD/CHANGE the phone number
+        // on the Index.cshtml of the Manage module
+        // Invoke this View by clicking the User Name Link on Page
+        // This View is not invoked by the User directly.
         // GET: /Manage/VerifyPhoneNumber
+        // This View Does nothing with the phoneNumber but just pass it to the 
+        // Post.VerifyPhoneNumber() so that it could be verified and put in the 
+        // Database. This View Just take the Verificatin Code & Phone as pass it to the
+        // Post.VerifyPhoneNumber()
+        // Following Debugging Code is uses the Phone number to generated the Token
+        // and pass to the Next View that is used to verify the Code.
+        // Code itself is sent in the Post.AddPhoneNumber();
+        // Post.AddPhoneNumber() + Get.VerifyPhoneNumber() are called in sequence.
+
         [HttpGet]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
+            //     Generate a code that the user can use to change their phone number 
+            //     to a specific number
+            // Following two line are for Debugging purpose
+            // In
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
             ViewBag.Code = code;
             // Send an SMS through the SMS provider to verify the phone number
-            return phoneNumber == null ? View("Error") : View("VerifyPhoneNumber", new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
+
+            if (phoneNumber == null)
+            {
+                return View("Error");
+            }
+            else
+            {
+                var viewModel = new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber };
+                return View("VerifyPhoneNumber", viewModel);
+            }
+
+            // Above is my Code, following is template code
+            //return phoneNumber == null ? View("Error") : View("VerifyPhoneNumber", new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
         }
 
 
@@ -200,7 +290,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
         public async Task<ActionResult> VerifyPhoneNumber2(string phoneNumber)
         {
             // This code allows you exercise the flow without actually sending codes
-            // For production use please register a SMS provider in IdentityConfig and generate a code here.
+            // For production use please register a SMS provider in IdentityConfig and 
+            // generate a code here.
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
             ViewBag.Status = "For DEMO purposes only, the current code is " + code;
             return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
@@ -217,19 +308,60 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 return View("VerifyPhoneNumber", model);
             }
+
+            // UserId, PhoneNo, Token/Code is used to Change the phone number
+            // Token verification is done inside the Business class of UserManager.ChangePhoneNumberAsync()
+
             var result = await UserManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
-            if (result.Succeeded)
+
+            if (!result.Succeeded)
             {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                if (user != null)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                }
-                return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
+                // If we got this far, something failed, redisplay form
+                ModelState.AddModelError("", "Failed to verify phone");
+                return View("VerifyPhoneNumber", model);
             }
-            // If we got this far, something failed, redisplay form
-            ModelState.AddModelError("", "Failed to verify phone");
-            return View("VerifyPhoneNumber", model);
+
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+
+            if (user != null)
+            {
+                // Refresh the Login Cookie
+                //     Creates a user identity and then signs the identity using the 
+                // AuthenticationManager
+                // When you change your security profile, a new security stamp is 
+                // generated and stored in the SecurityStamp field of the 
+                // AspNetUsers table.Note, the SecurityStamp field is different 
+                // from the security cookie.The security cookie is not stored in the 
+                // AspNetUsers table(or anywhere else in the Identity DB).
+                // The security cookie token is self - signed using DPAPI and is 
+                // created with the UserId, SecurityStamp and expiration time 
+                // information.
+
+                // The cookie middleware checks the cookie on each request.
+                // The SecurityStampValidator method in the Startup class hits the DB 
+                // and checks security stamp periodically, as specified with the 
+                // validateInterval.This only happens every 30 minutes (in our sample) 
+                // unless you change your security profile.The 30 minute interval was 
+                // chosen to minimize trips to the database.
+
+                // The SignInAsync method needs to be called when any change is made 
+                // to the security profile.When the security profile changes, 
+                // the database is updates the SecurityStamp field, and without 
+                // calling the SignInAsync method you would stay logged in only 
+                // until the next time the OWIN pipeline hits the database
+                // (the validateInterval).You can test this by changing the 
+                // SignInAsync method to return immediately, and setting the cookie 
+                // validateInterval property from 30 minutes to 5 seconds:
+
+                // Clear the temporary cookies used for external and two factor sign ins
+
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+            }
+
+            // Index Page of Manage Module
+            //return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
+            return RedirectToAction("Index", "Manage", new { Message = ManageMessageId.AddPhoneSuccess, area = "AccessControl" });
+
         }
 
         //
@@ -239,16 +371,21 @@ namespace CleanArchTemplate.AccessControl.Controllers
         public async Task<ActionResult> RemovePhoneNumber()
         {
             var result = await UserManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
+
             if (!result.Succeeded)
             {
-                return RedirectToAction("Index", new { Message = ManageMessageId.Error });
+                //return RedirectToAction("Index", new { Message = ManageMessageId.Error });
+                return RedirectToAction("Index", "Manage", new { Message = ManageMessageId.Error, area = "AccessControl" });
             }
+
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
             }
-            return RedirectToAction("Index", new { Message = ManageMessageId.RemovePhoneSuccess });
+
+            //return RedirectToAction("Index", new { Message = ManageMessageId.RemovePhoneSuccess });
+            return RedirectToAction("Index", "Manage", new { Message = ManageMessageId.RemovePhoneSuccess, area = "AccessControl" });
         }
 
         //
@@ -268,18 +405,25 @@ namespace CleanArchTemplate.AccessControl.Controllers
             {
                 return View("ChangePassword", model);
             }
+
             var result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
-            if (result.Succeeded)
+
+            if (!result.Succeeded)
             {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                if (user != null)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                }
-                return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
+                AddErrors(result);
+                return View("ChangePassword", model);
             }
-            AddErrors(result);
-            return View("ChangePassword", model);
+
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user != null)
+            {
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+            }
+
+            //return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
+            return RedirectToAction("Index", "Manage", new { Message = ManageMessageId.ChangePasswordSuccess, area = "AccessControl" });
+
+
         }
 
         //
@@ -295,23 +439,31 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SetPassword(SetPasswordViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
-                if (result.Succeeded)
-                {
-                    var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                    if (user != null)
-                    {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                    }
-                    return RedirectToAction("Index", new { Message = ManageMessageId.SetPasswordSuccess });
-                }
-                AddErrors(result);
+                // If we got this far, something failed, redisplay form
+                return View("SetPassword", model);
             }
 
-            // If we got this far, something failed, redisplay form
-            return View("SetPassword", model);
+            var result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                AddErrors(result);
+                return View("SetPassword", model);
+            }
+
+            // Success
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+
+            if (user != null)
+            {
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+            }
+
+            //return RedirectToAction("Index", new { Message = ManageMessageId.SetPasswordSuccess });
+            return RedirectToAction("Index", "Manage", new { Message = ManageMessageId.SetPasswordSuccess, area = "AccessControl" });
+
         }
 
         //
@@ -354,8 +506,11 @@ namespace CleanArchTemplate.AccessControl.Controllers
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
             if (loginInfo == null)
             {
-                return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
+                //return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
+                return RedirectToAction("ManageLogins", "Manage", new { Message = ManageMessageId.Error, area = "AccessControl" });
+
             }
+
             var result = await UserManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
         }
