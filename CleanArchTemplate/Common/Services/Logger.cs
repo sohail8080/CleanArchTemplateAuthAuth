@@ -146,8 +146,6 @@ namespace CleanArchTemplate.Common.Services
         }
 
 
-
-
         public static void SendErrorToFile(Exception ex)
         {
 
@@ -184,7 +182,6 @@ namespace CleanArchTemplate.Common.Services
         }
 
 
-
         public static void ReadError()
         {
             string strPath = @"D:\Rekha\Log.txt";
@@ -199,26 +196,42 @@ namespace CleanArchTemplate.Common.Services
         }
 
 
-
-
-        private void LogError(Exception ex)
+        public void LogError(Exception ex)
         {
             string message = string.Format("Time: {0}", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
-            message += Environment.NewLine;
-            message += "-----------------------------------------------------------";
-            message += Environment.NewLine;
-            message += string.Format("Message: {0}", ex.Message);
-            message += Environment.NewLine;
-            message += string.Format("StackTrace: {0}", ex.StackTrace);
-            message += Environment.NewLine;
-            message += string.Format("Source: {0}", ex.Source);
-            message += Environment.NewLine;
-            message += string.Format("TargetSite: {0}", ex.TargetSite.ToString());
-            message += Environment.NewLine;
-            message += "-----------------------------------------------------------";
-            message += Environment.NewLine;
-            string path = "";// Server.MapPath("~/ErrorLog/ErrorLog.txt");
-            using (StreamWriter writer = new StreamWriter(path, true))
+            do
+            {
+                message += Environment.NewLine;
+                message += "-----------------------------------------------------------";
+                message += Environment.NewLine;
+                message += string.Format("Exception Type: {0}", ex.GetType().Name);
+                message += Environment.NewLine;
+                message += string.Format("Message: {0}", ex.Message);
+                message += Environment.NewLine;
+                message += string.Format("StackTrace: {0}", ex.StackTrace);
+                message += Environment.NewLine;
+                message += string.Format("Source: {0}", ex.Source);
+                message += Environment.NewLine;
+                message += string.Format("TargetSite: {0}", ex.TargetSite.ToString());
+                message += Environment.NewLine;
+                message += "-----------------------------------------------------------";
+                message += Environment.NewLine;
+
+
+                ex = ex.InnerException;
+            }
+            while (ex != null);
+           
+
+            string filePath = @"D:\Sohail\"+ DateTime.Now.ToString("dd /MM/yyyy hh:mm:ss tt") + "Log.txt";;
+
+            if (!File.Exists(filePath))
+            {
+                File.Create(filePath).Dispose();
+            }
+
+            //using (StreamWriter sw = File.AppendText(strPath))
+            using (StreamWriter writer = new StreamWriter(filePath, true))
             {
                 writer.WriteLine(message);
                 writer.Close();

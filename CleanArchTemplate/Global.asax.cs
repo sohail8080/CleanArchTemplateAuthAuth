@@ -1,5 +1,6 @@
 ﻿using CleanArchTemplate.AccessControl.Controllers;
 using CleanArchTemplate.AccessControl.Controllers.ErrorControllers;
+using CleanArchTemplate.Common.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,8 @@ namespace CleanArchTemplate
         {
             Exception ex = Server.GetLastError();
 
+            Logger logger = new Logger();
+            logger.LogError(ex);
         }
 
 

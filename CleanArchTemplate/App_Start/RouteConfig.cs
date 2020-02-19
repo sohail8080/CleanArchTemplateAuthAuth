@@ -48,6 +48,8 @@ namespace CleanArchTemplate
             // login and there is not return url
             // defaults is now overrided inside the AccController in the Login()
 
+            // Starup Page of the application is defined in the following routing rule.
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

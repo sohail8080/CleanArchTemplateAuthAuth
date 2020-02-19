@@ -49,9 +49,9 @@ namespace CleanArchTemplate.AccessControl.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            //throw new Exception("Exception happens on server.");
+            throw new Exception("Exception happens on server.");
 
-            return HttpNotFound();
+            //return HttpNotFound();
 
             //return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             //return new HttpStatusCodeResult(HttpStatusCode.NotFound);
