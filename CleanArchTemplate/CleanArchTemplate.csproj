@@ -249,6 +249,7 @@
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\HandleErrorAttribute.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\HandleErrorsAttribute.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\LogAttribute.cs" />
+    <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\LogExceptionToFileAttribute.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\MyExceptionHandler.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorHandling\NotImplExceptionFilterAttribute.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorPageController.cs" />

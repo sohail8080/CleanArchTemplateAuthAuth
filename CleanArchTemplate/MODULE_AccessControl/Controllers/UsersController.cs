@@ -2,6 +2,7 @@
 using CleanArchTemplate.AccessControl.Persistence;
 using CleanArchTemplate.AccessControl.ViewModels;
 using CleanArchTemplate.Common.BaseClasses;
+using CleanArchTemplate.Common.Services;
 using CleanArchTemplate.Common.UOW;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -47,6 +48,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        [LogExceptionToFile]
         public ActionResult Index()
         {
             throw new Exception("Exception happens on server.");

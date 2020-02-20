@@ -8,11 +8,28 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Web.Configuration;
 
 namespace CleanArchTemplate.Common.Services
 {
     public class Logger
     {
+        //if stored in the web.config in web application also can be used in the 
+        // class library project but relevent reference should be added then System.web.
+        //private static string connectionString = WebConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+
+        private static string logDirectoryPath = WebConfigurationManager.AppSettings["LogDirectoryPath"].ToString();
+
+        // if stored in the connection string tag in the app.config in class library project .. 
+        // add referece System.Configuration
+        //private static string connectionString1 = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+        //if stored in the appsettings tag in the app.config in the class library project ...
+        // add referece System.Configuration
+        //private static string connectionString2 = ConfigurationManager.AppSettings["ConnectionString"].ToString(); 
+
+
         public static void Log(Exception exception)
         {
             StringBuilder sbExceptionMessage = new StringBuilder();
@@ -165,6 +182,9 @@ namespace CleanArchTemplate.Common.Services
         public static void ErrorLogging(Exception ex)
         {
             string strPath = @"D:\Rekha\Log.txt";
+
+
+
             if (!File.Exists(strPath))
             {
                 File.Create(strPath).Dispose();
@@ -201,29 +221,36 @@ namespace CleanArchTemplate.Common.Services
             string message = string.Format("Time: {0}", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
             do
             {
-                message += Environment.NewLine;
-                message += "-----------------------------------------------------------";
-                message += Environment.NewLine;
-                message += string.Format("Exception Type: {0}", ex.GetType().Name);
-                message += Environment.NewLine;
-                message += string.Format("Message: {0}", ex.Message);
-                message += Environment.NewLine;
-                message += string.Format("StackTrace: {0}", ex.StackTrace);
-                message += Environment.NewLine;
-                message += string.Format("Source: {0}", ex.Source);
-                message += Environment.NewLine;
-                message += string.Format("TargetSite: {0}", ex.TargetSite.ToString());
-                message += Environment.NewLine;
-                message += "-----------------------------------------------------------";
-                message += Environment.NewLine;
 
+                message += Environment.NewLine;
+                message += "-----------------------------------------------------------";
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += string.Format("Exception Type: {0}", ex.GetType().Name);
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += string.Format("Exception Message: {0}", ex.Message);
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += string.Format("Exception Source: {0}", ex.Source);
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += string.Format("TargetSite: {0}", ex.TargetSite.ToString());
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += string.Format("StackTrace: {0}", ex.StackTrace);
+                message += Environment.NewLine; message += Environment.NewLine;
+                message += "-----------------------------------------------------------";
+                //message += Environment.NewLine;
 
                 ex = ex.InnerException;
             }
             while (ex != null);
-           
 
-            string filePath = @"D:\Sohail\"+ DateTime.Now.ToString("dd /MM/yyyy hh:mm:ss tt") + "Log.txt";;
+            string directoryPath = @logDirectoryPath;
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            string filePath = @logDirectoryPath + DateTime.Now.ToString("dd_MM_yyyy_hh_mm_ss_tt") + "Log.txt"; ;
+
 
             if (!File.Exists(filePath))
             {
