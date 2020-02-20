@@ -7,6 +7,7 @@ using Microsoft.Owin.Security.Google;
 using Owin;
 using CleanArchTemplate.Common.UOW;
 using CleanArchTemplate.AccessControl.Domain;
+using CleanArchTemplate.Common.Services;
 
 namespace CleanArchTemplate
 {
@@ -61,6 +62,8 @@ namespace CleanArchTemplate
 
             // this class is yet needed to be tested.
             app.CreatePerOwinContext<ApplicationRoleManager>(ApplicationRoleManager.Create);
+
+            app.CreatePerOwinContext(Logger.Create);
 
 
             // Enable the application to use a cookie to store information for the 

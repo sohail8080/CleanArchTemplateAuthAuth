@@ -231,6 +231,7 @@
     <Compile Include="Common\BaseClasses\Application\ViewModelBase.cs" />
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
     <Compile Include="App_Start\Identity\AuthMessageSenderOptions.cs" />
+    <Compile Include="Common\Services\ILogger.cs" />
     <Compile Include="Common\Services\Logger.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\BaseController.cs" />

@@ -163,7 +163,8 @@ namespace CleanArchTemplate.AccessControl.Controllers
                     }
                     else
                     {
-                        ViewBag.Message = "Error occurred while updating Record(s)";
+                        ViewBag.Message = "Error occurred while created Record(s)";
+                        Logger.LogInfo($"New user created successfully.");
                         foreach (var error in result.Errors)
                         { ModelState.AddModelError("", error); }
                         return View("RoleForm", viewModel);
@@ -204,6 +205,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 if (result.Succeeded)
                 {
                     ViewBag.Message = "Record(s) updated successfully.";
+                    Logger.LogInfo($"Role with ID {viewModel.Id} is updated successfully.");
                     return List();
                 }
                 else
@@ -267,6 +269,7 @@ namespace CleanArchTemplate.AccessControl.Controllers
 
             //return RedirectToAction("List");
             ViewBag.Message = "Record(s) deleted successfully.";
+            Logger.LogInfo($"User with ID {id} is deleted successfully.");
             return List();
 
             //var role = RoleManager.FindById(id);

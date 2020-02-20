@@ -12,7 +12,7 @@ using System.Web.Configuration;
 
 namespace CleanArchTemplate.Common.Services
 {
-    public class Logger
+    public class Logger : IDisposable, ILogger
     {
         //if stored in the web.config in web application also can be used in the 
         // class library project but relevent reference should be added then System.web.
@@ -29,6 +29,11 @@ namespace CleanArchTemplate.Common.Services
         // add referece System.Configuration
         //private static string connectionString2 = ConfigurationManager.AppSettings["ConnectionString"].ToString(); 
 
+
+        public static Logger Create()
+        {
+            return new Logger();
+        }
 
         public static void Log(Exception exception)
         {
@@ -215,6 +220,30 @@ namespace CleanArchTemplate.Common.Services
             }
         }
 
+        public void LogInfo(string info)
+        {
+            string directoryPath = @logDirectoryPath;
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            string filePath = @logDirectoryPath + DateTime.Now.ToString("dd_MM_yyyy_hh") + "Info.txt"; ;
+
+            if (!File.Exists(filePath))
+            {
+                File.Create(filePath).Dispose();
+            }
+
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine(info);
+                writer.Close();
+            }
+
+        }
+
 
         public void LogError(Exception ex)
         {
@@ -251,7 +280,6 @@ namespace CleanArchTemplate.Common.Services
 
             string filePath = @logDirectoryPath + DateTime.Now.ToString("dd_MM_yyyy_hh_mm_ss_tt") + "Log.txt"; ;
 
-
             if (!File.Exists(filePath))
             {
                 File.Create(filePath).Dispose();
@@ -265,7 +293,37 @@ namespace CleanArchTemplate.Common.Services
             }
         }
 
+        // Flag: Has Dispose already been called?
+        bool disposed = false;
 
+        // Public implementation of Dispose pattern callable by consumers.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                //
+            }
+
+            // Free any unmanaged objects here.
+            //
+            disposed = true;
+        }
+
+        ~Logger()
+        {
+            Dispose(false);
+        }
 
 
     }

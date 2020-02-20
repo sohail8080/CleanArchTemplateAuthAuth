@@ -21,6 +21,7 @@ namespace CleanArchTemplate.Common.BaseClasses
         internal ApplicationUserManager _userManager;
         internal ApplicationRoleManager _roleManager;
         internal ApplicationDbContext _context;
+        internal Logger _logger;
 
         // Controller is not getting these properties by DI/IOC
         // In Startup.Auth.cs these Services are configured to stored in the 
@@ -86,13 +87,25 @@ namespace CleanArchTemplate.Common.BaseClasses
             }
         }
 
+        internal Logger Logger
+        {
+            get
+            {
+                return _logger ?? HttpContext.GetOwinContext().Get<Logger>();
+            }
+            set
+            {
+                _logger = value;
+            }
+        }
+
 
         protected override void OnException(ExceptionContext filterContext)
         {
             Exception ex = filterContext.Exception;
 
-            Logger logger = new Logger();
-            logger.LogError(ex);
+            //Logger logger = new Logger();
+            Logger.LogError(ex);
 
             // Gets or sets a value that indicates whether the 
             // exception has been handled.
@@ -104,151 +117,151 @@ namespace CleanArchTemplate.Common.BaseClasses
             // OR set the result without redirection:
             //filterContext.Result = new ViewResult
             //{
-                //ViewName = "~/Views/Error/Index.cshtml"
+            //ViewName = "~/Views/Error/Index.cshtml"
             //};
 
 
         }
 
 
-            #endregion
+        #endregion
 
 
-            #region Handle Result Methods
+        #region Handle Result Methods
 
-            //protected void HandleResult(IdentityResult result, string successMessage)
-            //{
-            //    if (!result.Succeeded)
-            //    { AddErrors(result); }
-            //    else
-            //    {
-            //        ViewBag.Message = successMessage;
-            //        // TempData is used in case of RedirectAction to persever data
-            //        //TempData["Message"] = successMessage;
-            //    }
-            //}
-
-
-            //protected void HandleAddResult(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while adding Record(s)";
-            //        AddErrors(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) added successfully.";
-            //    }
-            //}
-
-            //protected void HandleUpdateResult(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while updating Record(s)";
-            //        AddErrors(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) updated successfully.";
-            //    }
-            //}
-
-            //protected void HandleDeleteResult(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while deleting Record(s)";
-            //        AddErrors(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) deleted successfully.";
-            //    }
-            //}
+        //protected void HandleResult(IdentityResult result, string successMessage)
+        //{
+        //    if (!result.Succeeded)
+        //    { AddErrors(result); }
+        //    else
+        //    {
+        //        ViewBag.Message = successMessage;
+        //        // TempData is used in case of RedirectAction to persever data
+        //        //TempData["Message"] = successMessage;
+        //    }
+        //}
 
 
+        //protected void HandleAddResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
 
-            //protected void HandleAddResultOneError(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while adding Record(s)";
-            //        AddOneError(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) added successfully.";
-            //    }
-            //}
+        //protected void HandleUpdateResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
 
-            //protected void HandleUpdateResultOneError(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while updating Record(s)";
-            //        AddOneError(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) updated successfully.";
-            //    }
-            //}
-
-            //protected void HandleDeleteResultOneError(IdentityResult result)
-            //{
-            //    if (!result.Succeeded)
-            //    {
-            //        ViewBag.Message = "Error occurred while deleting Record(s)";
-            //        AddOneError(result);
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) deleted successfully.";
-            //    }
-            //}
+        //protected void HandleDeleteResult(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //        AddErrors(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
 
 
 
+        //protected void HandleAddResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
 
-            //protected void HandleAddResult(int result)
-            //{
-            //    if (result <= 0)
-            //    {
-            //        ViewBag.Message = "Error occurred while adding Record(s)";
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) added successfully.";
-            //    }
-            //}
+        //protected void HandleUpdateResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
 
-            //protected void HandleUpdateResult(int result)
-            //{
-            //    if (result <= 0)
-            //    {
-            //        ViewBag.Message = "Error occurred while updating Record(s)";
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) updated successfully.";
-            //    }
-            //}
+        //protected void HandleDeleteResultOneError(IdentityResult result)
+        //{
+        //    if (!result.Succeeded)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //        AddOneError(result);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
 
-            //protected void HandleDeleteResult(int result)
-            //{
-            //    if (result <= 0)
-            //    {
-            //        ViewBag.Message = "Error occurred while deleting Record(s)";
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Message = "Record(s) deleted successfully.";
-            //    }
-            //}
 
-            protected void AddErrors(IdentityResult result)
+
+
+        //protected void HandleAddResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while adding Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) added successfully.";
+        //    }
+        //}
+
+        //protected void HandleUpdateResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while updating Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) updated successfully.";
+        //    }
+        //}
+
+        //protected void HandleDeleteResult(int result)
+        //{
+        //    if (result <= 0)
+        //    {
+        //        ViewBag.Message = "Error occurred while deleting Record(s)";
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = "Record(s) deleted successfully.";
+        //    }
+        //}
+
+        protected void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
             {
@@ -415,6 +428,42 @@ namespace CleanArchTemplate.Common.BaseClasses
 
         #endregion
     */
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_userManager != null)
+                {
+                    _userManager.Dispose();
+                    _userManager = null;
+                }
+
+                if (_signInManager != null)
+                {
+                    _signInManager.Dispose();
+                    _signInManager = null;
+                }
+
+                if (_roleManager != null)
+                {
+                    _roleManager.Dispose();
+                    _roleManager = null;
+                }
+
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+
+            }
+
+            base.Dispose(disposing);
+        }
+
+
 
     }
 }
