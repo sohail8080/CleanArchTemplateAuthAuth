@@ -12,6 +12,7 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using CleanArchTemplate.AccessControl.Domain;
 using CleanArchTemplate.Common.UOW;
+using System.Threading;
 
 namespace CleanArchTemplate
 {
@@ -55,6 +56,8 @@ namespace CleanArchTemplate
             : base(store)
         {
         }
+
+        internal ApplicationDbContext Context = new ApplicationDbContext();
 
         // Followong method is used to create the ApplicationUserManager
         // to manage Users inside the Application
@@ -115,16 +118,29 @@ namespace CleanArchTemplate
 
             // WHILE USER LOGIN, 2FA CODES CAN BE SEND BY THE EMAIL OR PHONE            
 
-            //     Register a two factor authentication provider with the TwoFactorProviders 
-            //     mapping
-            //     TokenProvider that generates tokens from the user's security stamp 
-            //     and notifies a user via their phone number
+            // Register a two factor authentication provider with the TwoFactorProviders 
+            // mapping
+            // TokenProvider that generates tokens from the user's security stamp 
+            // and notifies a user via their phone number
+
+            // 2 token providers registered, PhoneNumberTokenProvider and EmailTokenProvider.
+            // These are used to send 2 factor authentication tokens to 
+            // a user’s cellphone number and email address respectively.
+            // Following code enable these 2 providers
+            // Both of these providers ultimately implement the IUserTokenProvider class
+            // These Provider do the following jobs
+            // 1- Generate a token for a user with a specific purpose: GenerateAsync()
+            // 2- Validate a token for a user with a specific purpose: ValidateAsync()
+            // 3- Notifies the user that a token has been generated, for example an email 
+            // or sms could be sent, or this can be a no-op: NotifyAsync()
+            // 4-Returns true if provider can be used for this user, 
+            // i.e. could require a user to have an email IsValidProviderForUserAsync()
 
             manager.RegisterTwoFactorProvider("Phone Code",
-                    new PhoneNumberTokenProvider<ApplicationUser>
-                    {
-                        MessageFormat = "Your security code is {0}"
-                    });
+                        new PhoneNumberTokenProvider<ApplicationUser>
+                        {
+                            MessageFormat = "Your security code is {0}"
+                        });
 
             //     TokenProvider that generates tokens from the user's 
             // security stamp and notifies
@@ -176,5 +192,44 @@ namespace CleanArchTemplate
         }
 
 
+        /// <summary>
+        /// Find a user token if it exists.
+        /// </summary>
+        /// <param name="user">The token owner.</param>
+        /// <param name="loginProvider">The login provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user token if it exists.</returns>
+        protected Task<IdentityUserToken> FindTokenAsync(IdentityUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            return Context.UserTokens.FindAsync(new object[] { user.Id, loginProvider, name }, cancellationToken);
+        }
+
+        /// <summary>
+        /// Add a new user token.
+        /// </summary>
+        /// <param name="token">The token to be added.</param>
+        /// <returns></returns>
+        protected Task AddUserTokenAsync(IdentityUserToken token)
+        {
+            Context.UserTokens.Add(token);
+            return Task.CompletedTask;
+        }
+
+
+        /// <summary>
+        /// Remove a new user token.
+        /// </summary>
+        /// <param name="token">The token to be removed.</param>
+        /// <returns></returns>
+        protected Task RemoveUserTokenAsync(IdentityUserToken token)
+        {
+            Context.UserTokens.Remove(token);
+            return Task.CompletedTask;
+        }
     }
+
+
+
+
 }

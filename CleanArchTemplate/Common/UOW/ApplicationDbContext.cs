@@ -12,6 +12,10 @@ namespace CleanArchTemplate.Common.UOW
     //public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<IdentityRoleClaim> RoleClaims { get; set; }
+
+        public DbSet<IdentityUserToken> UserTokens { get; set; }
+
         public ApplicationDbContext()
          : base("DefaultConnection", throwIfV1Schema: false)
          //: base("DefaultConnection")

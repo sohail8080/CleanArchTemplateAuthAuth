@@ -231,8 +231,18 @@
     <Compile Include="Common\BaseClasses\Application\ViewModelBase.cs" />
     <Compile Include="Common\BaseClasses\Presentation\BaseWebAPIController.cs" />
     <Compile Include="App_Start\Identity\AuthMessageSenderOptions.cs" />
+    <Compile Include="Common\Migrations\202002230843492_AddRoleClaimsTable.cs" />
+    <Compile Include="Common\Migrations\202002230843492_AddRoleClaimsTable.Designer.cs">
+      <DependentUpon>202002230843492_AddRoleClaimsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\Migrations\202002231012275_AddUserTokesnTable.cs" />
+    <Compile Include="Common\Migrations\202002231012275_AddUserTokesnTable.Designer.cs">
+      <DependentUpon>202002231012275_AddUserTokesnTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Common\Services\ILogger.cs" />
     <Compile Include="Common\Services\Logger.cs" />
+    <Compile Include="Common\UOW\IdentityRoleClaim.cs" />
+    <Compile Include="Common\UOW\IdentityUserToken.cs" />
     <Compile Include="MODULE_AccessControl\AccessControlAreaRegistration.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\BaseController.cs" />
     <Compile Include="MODULE_AccessControl\Controllers\ErrorControllers\ErrorController.cs" />
@@ -561,6 +571,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Common\Migrations\201909211548509_AddColumntToApplicationUser.resx">
       <DependentUpon>201909211548509_AddColumntToApplicationUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Common\Migrations\202002230843492_AddRoleClaimsTable.resx">
+      <DependentUpon>202002230843492_AddRoleClaimsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Common\Migrations\202002231012275_AddUserTokesnTable.resx">
+      <DependentUpon>202002231012275_AddUserTokesnTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
