@@ -13,6 +13,8 @@ using Microsoft.Owin.Security;
 using CleanArchTemplate.AccessControl.Domain;
 using CleanArchTemplate.Common.UOW;
 using System.Threading;
+using OtpSharp;
+using Base32;
 
 namespace CleanArchTemplate
 {
@@ -227,6 +229,58 @@ namespace CleanArchTemplate
             Context.UserTokens.Remove(token);
             return Task.CompletedTask;
         }
+
+
+        public string GetAuthenticatorKeyAsync(ApplicationUser user)
+        {
+            var usertoken = Context.UserTokens.SingleOrDefault(ut => ut.UserId == user.Id);
+
+            if (usertoken == null)
+            {
+                return null;
+            }
+            else
+            {
+                // AuthenticatorKey
+                return usertoken.Value;
+            }
+        }
+
+
+        public IdentityResult ResetAuthenticatorKeyAsync(ApplicationUser user)
+        {
+
+            try
+            {
+
+                var usertoken = Context.UserTokens.SingleOrDefault(ut => ut.UserId == user.Id);
+
+                if (usertoken != null)
+                {
+                    Context.UserTokens.Remove(Context.UserTokens.SingleOrDefault(ut => ut.UserId == user.Id));
+                }
+
+                byte[] authenticatorKey = KeyGeneration.GenerateRandomKey(20);
+                var identityUserToken = new IdentityUserToken();
+                identityUserToken.UserId = user.Id;
+                identityUserToken.LoginProvider = "AspNetUserStore";
+                identityUserToken.Name = "AuthenticatorKey";               
+                identityUserToken.Value = Base32Encoder.Encode(authenticatorKey);
+
+
+                Context.UserTokens.Add(identityUserToken);
+                Context.SaveChanges();
+
+                return IdentityResult.Success;
+            }
+            catch (Exception exception)
+            {
+
+                return new IdentityResult(exception.ToString());
+            }
+
+        }
+
     }
 
 

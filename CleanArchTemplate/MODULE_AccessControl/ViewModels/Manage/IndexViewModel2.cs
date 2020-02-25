@@ -15,13 +15,16 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
 
-
         public string Username { get; set; }
-
         public bool IsEmailConfirmed { get; set; }
-
-        //[TempData]
         public string StatusMessage { get; set; }
+
+
+        public bool HasAuthenticator { get; set; }
+        public int RecoveryCodesLeft { get; set; }       
+        public bool Is2faEnabled { get; set; }
+        public bool IsMachineRemembered { get; set; }
+
 
     }
 }

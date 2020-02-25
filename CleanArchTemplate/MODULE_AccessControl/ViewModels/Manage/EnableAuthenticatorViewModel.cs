@@ -16,7 +16,9 @@ namespace CleanArchTemplate.AccessControl.ViewModels
         public string Code { get; set; }
 
 
-        public string SharedKey { get; set; }
+        public string UnformattedAuthenticatorKey { get; set; }
+
+        public string AuthenticatorKey { get; set; }
 
         public string AuthenticatorUri { get; set; }
 

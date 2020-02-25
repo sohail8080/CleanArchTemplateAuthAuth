@@ -9,6 +9,9 @@ using Microsoft.Owin.Security;
 using CleanArchTemplate.AccessControl.ViewModels;
 using CleanArchTemplate.Common.BaseClasses;
 using CleanArchTemplate.Common.UOW;
+using OtpSharp;
+using Base32;
+using System.Text;
 
 namespace CleanArchTemplate.AccessControl.Controllers
 {
@@ -52,13 +55,30 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 : "";
 
             var userId = User.Identity.GetUserId();
+
+            var user = await UserManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return HttpNotFound($"Unable to load user with ID '{userId}'.");
+            }
+
             var model = new IndexViewModel
             {
+
+                //HasAuthenticator = await UserManager.GenerateTwoFactorTokenAsync(user) != null,
+                //Is2faEnabled = await UserManager.GetTwoFactorEnabledAsync(user),
+                //IsMachineRemembered = await SignInManager.IsTwoFactorClientRememberedAsync(user),
+                //RecoveryCodesLeft = await UserManager.CountRecoveryCodesAsync(user),
+
+
+
+
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
-                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                Is2faEnabled = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                IsMachineRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
             };
             return View("Index", model);
         }
@@ -139,16 +159,16 @@ namespace CleanArchTemplate.AccessControl.Controllers
             // For Mobile Number Verification, User will Re-Type this Code
             // to verify that Phone Number is his phone number.
 
-          // The 2FA codes are generated using Time - based One - time Password 
-          // Algorithm and codes are valid for six minutes. If you take more than 
-          // six minutes to enter the code, you'll get an Invalid code error message.
+            // The 2FA codes are generated using Time - based One - time Password 
+            // Algorithm and codes are valid for six minutes. If you take more than 
+            // six minutes to enter the code, you'll get an Invalid code error message.
 
-          // You can add more 2FA providers such as QR code generators or 
-          // you can write you own(See Using Google Authenticator 
-          // with ASP.NET Identity).
+            // You can add more 2FA providers such as QR code generators or 
+            // you can write you own(See Using Google Authenticator 
+            // with ASP.NET Identity).
 
-          // Code/Token to Verify Phone != Code to Signin under 2FA
-          var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
+            // Code/Token to Verify Phone != Code to Signin under 2FA
+            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
 
             // If the SMS service is configured, then Send Code to the SMS
             // This is done only to ensure the User on the Computer is providing the 
@@ -242,6 +262,173 @@ namespace CleanArchTemplate.AccessControl.Controllers
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
             }
             return RedirectToAction("Index", "Manage", new { area = "AccessControl" });
+        }
+
+
+        private string FormatAuthenticatorKey(string unformattedAuthenticatorKey)
+        {
+            var result = new StringBuilder();
+            int currentPosition = 0;
+            while (currentPosition + 4 < unformattedAuthenticatorKey.Length)
+            {
+                result.Append(unformattedAuthenticatorKey.Substring(currentPosition, 4)).Append(" ");
+                currentPosition += 4;
+            }
+            if (currentPosition < unformattedAuthenticatorKey.Length)
+            {
+                result.Append(unformattedAuthenticatorKey.Substring(currentPosition));
+            }
+
+            return result.ToString().ToLowerInvariant();
+        }
+
+        private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
+
+
+        private string GenerateQrCodeUri(string email, string unformattedAuthenticatorKey)
+        {
+            return string.Format(
+                AuthenticatorUriFormat,
+                HttpUtility.UrlEncode("WebApplication23"),
+                 HttpUtility.UrlEncode(email),
+                unformattedAuthenticatorKey);
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult> EnableAuthenticator()
+        {
+          
+            var userId = User.Identity.GetUserId();
+            var user = await UserManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return HttpNotFound($"Unable to load user with ID '{userId}'.");
+            }
+
+            // Load the authenticator key & QR code URI to display on the form
+            //var unformattedAuthenticatorKey = UserManager.GetAuthenticatorKeyAsync(user);
+            //if (string.IsNullOrEmpty(unformattedAuthenticatorKey))
+            //{
+            //    UserManager.ResetAuthenticatorKeyAsync(user);
+            //    unformattedAuthenticatorKey = UserManager.GetAuthenticatorKeyAsync(user);
+            //}
+
+
+            var viewModel = await GetEnableAuthenticatorViewModelAsync();
+
+            return View("EnableAuthenticator", viewModel);
+
+            //string userName = User.Identity.GetUserName();
+            //string barcodeUrl = KeyUrl.GetTotpUrl(secretKey, userName) + "&issuer=MySuperApplication";
+
+            //var model = new EnableAuthenticatorViewModel
+            //{
+            //    AuthenticatorKey = Base32Encoder.Encode(secretKey),
+            //    AuthenticatorUri = HttpUtility.UrlEncode(barcodeUrl)
+            //};
+
+            //return View(model);            
+        }
+
+
+
+        private async Task<EnableAuthenticatorViewModel> GetEnableAuthenticatorViewModelAsync()
+        {
+            var viewModel = new EnableAuthenticatorViewModel();
+            var userId = User.Identity.GetUserId();
+            var user = await UserManager.FindByIdAsync(userId);
+
+            var unformattedAuthenticatorKey = UserManager.GetAuthenticatorKeyAsync(user);
+            if (string.IsNullOrEmpty(unformattedAuthenticatorKey))
+            {
+                UserManager.ResetAuthenticatorKeyAsync(user);
+                unformattedAuthenticatorKey = UserManager.GetAuthenticatorKeyAsync(user);
+            }
+
+            viewModel.UnformattedAuthenticatorKey = unformattedAuthenticatorKey;
+            viewModel.AuthenticatorKey = FormatAuthenticatorKey(unformattedAuthenticatorKey);
+
+            var email = await UserManager.GetEmailAsync(userId);
+            viewModel.AuthenticatorUri = GenerateQrCodeUri(email, unformattedAuthenticatorKey);
+
+            return viewModel;
+        }
+
+
+
+
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<ActionResult> EnableAuthenticator(EnableAuthenticatorViewModel viewModel)
+        {
+
+            var userId = User.Identity.GetUserId();
+
+            var user = await UserManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return HttpNotFound($"Unable to load user with ID '{userId}'.");
+            }
+
+
+            if (!ModelState.IsValid)
+            {
+                // If hidden fields in view risky then delete them
+                // Following code fetched them in case of failded post
+                var vm = await GetEnableAuthenticatorViewModelAsync();
+                return View("EnableAuthenticator", vm);
+            }
+
+            // Strip spaces and hypens
+            var verificationCode = viewModel.Code.Replace(" ", string.Empty).Replace("-", string.Empty);
+
+            //var is2faTokenValid = await UserManager.VerifyTwoFactorTokenAsync(
+            //    user, UserManager.Options.Tokens.AuthenticatorTokenProvider, verificationCode);
+
+
+            byte[] authenticatorKey = Base32Encoder.Decode(viewModel.UnformattedAuthenticatorKey);
+
+            long timeStepMatched = 0;
+            var otp = new Totp(authenticatorKey);
+            var is2faTokenValid = otp.VerifyTotp(viewModel.Code, out timeStepMatched, new VerificationWindow(2, 2));
+
+            if (!is2faTokenValid)
+            {
+                // If hidden fields in view risky then delete them
+                // Following code fetched them in case of failded post
+                var vm = await GetEnableAuthenticatorViewModelAsync();
+                ModelState.AddModelError("", "Verification code is invalid.");
+                return View("EnableAuthenticator", vm);
+            }
+
+            await _userManager.SetTwoFactorEnabledAsync(user.Id, true);
+            //var userId = await _userManager.GetUserIdAsync(user);
+            //Logger.LogInfo($"User with ID '{userId}' has enabled 2FA with an authenticator app.");
+
+            ViewBag.StatusMessage = "Your authenticator app has been verified.";
+
+            //if (await _userManager.CountRecoveryCodesAsync(user) == 0)
+            //{
+            //    var recoveryCodes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            //    RecoveryCodes = recoveryCodes.ToArray();
+            //    return RedirectToPage("./ShowRecoveryCodes");
+            //}
+            //else
+            //{
+            //    return RedirectToPage("./TwoFactorAuthentication");
+            //}
+
+
+
+
+            return RedirectToAction("EnableAuthenticator");
+
+
+            //return new EmptyResult();
         }
 
         // We get to this View when we ADD/CHANGE the phone number

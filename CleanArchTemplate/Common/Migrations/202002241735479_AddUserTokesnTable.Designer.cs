@@ -13,7 +13,7 @@ namespace CleanArchTemplate.Common.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202002231012275_AddUserTokesnTable"; }
+            get { return "202002241735479_AddUserTokesnTable"; }
         }
         
         string IMigrationMetadata.Source

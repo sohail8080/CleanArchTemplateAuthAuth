@@ -15,26 +15,29 @@
             [
             @if (Model.HasPassword)
             {
-                @Html.ActionLink("Change your password", "ChangePassword")
+                @*@Html.ActionLink("Change your password", "ChangePassword")*@
+                @Html.ActionLink("Change your password", "ChangePassword", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "changePasswordLink", @class = "" })
             }
             else
             {
-                @Html.ActionLink("Create", "SetPassword")
+                @*@Html.ActionLink("Create", "SetPassword")*@
+                @Html.ActionLink("Create your password", "SetPassword", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "createPasswordLink", @class = "" })
             }
             ]
         </dd>
         <dt>External Logins:</dt>
         <dd>
             @Model.Logins.Count [
-            @Html.ActionLink("Manage", "ManageLogins") ]
+            @*@Html.ActionLink("Manage", "ManageLogins")*@
+            @Html.ActionLink("Manage", "ManageLogins", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "" })]
         </dd>
         @*
-        Phone Numbers can used as a second factor of verification in a two-factor authentication system.
+            Phone Numbers can used as a second factor of verification in a two-factor authentication system.
 
-         See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-            for details on setting up this ASP.NET application to support two-factor authentication using SMS.
+             See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
+                for details on setting up this ASP.NET application to support two-factor authentication using SMS.
 
-         Uncomment the following block after you have set up two-factor authentication
+             Uncomment the following block after you have set up two-factor authentication
         *@
 
         @* Start of Block: Add/Remove/Change Phone Number *@
@@ -45,12 +48,12 @@
             @(Model.PhoneNumber ?? "None")
             @if (Model.PhoneNumber != null)
             {
-                <br />
-                <text>[&nbsp;&nbsp;@Html.ActionLink("Change", "AddPhoneNumber")&nbsp;&nbsp;]</text>
+
+                @Html.ActionLink("Change", "AddPhoneNumber")
                 using (Html.BeginForm("RemovePhoneNumber", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
-                    <text>[<input type="submit" value="Remove" class="btn-link" />]</text>
+                    <input type="submit" value="Remove" class="btn-link" />
                 }
             }
             else
@@ -60,24 +63,17 @@
         </dd>
 
 
-        @* End of Block: Add/Remove/Change Phone Number *@
 
-        <dt>Two-Factor Authentication:</dt>
+        <dt>Enable 2FA:</dt>
         <dd>
-            <p>
-                There are no two-factor authentication providers configured. See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-                for details on setting up this ASP.NET application to support two-factor authentication.
-            </p>
 
-            @* Start of Block: Disable/Enable 2FA *@
-
-            @if (Model.TwoFactor)
+            @if (Model.Is2faEnabled)
             {
                 using (Html.BeginForm("DisableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
-                    <text>Enabled
-                        <input type="submit" value="Disable" class="btn btn-link" />
+                    <text>
+                        Enabled [<input type="submit" value="Disable" class="btn btn-link" />]
                     </text>
                 }
             }
@@ -86,14 +82,110 @@
                 using (Html.BeginForm("EnableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
-                    <text>Disabled
-                        <input type="submit" value="Enable" class="btn btn-link" />
+                    <text>Disabled [<input type="submit" value="Enable" class="btn btn-link" />]
                     </text>
                 }
             }
 
-            @* End of Block: Disable/Enable 2FA *@
+        </dd>
+
+
+
+        @if (Model.HasAuthenticator)
+        {
+            <dt>2FA Recovery Codes:</dt>
+            <dd>
+
+                @if (Model.RecoveryCodesLeft == 0)
+                {
+                    <div class="alert alert-danger">
+                        <strong>You have no recovery codes left.</strong>
+                        <p>
+                            You must
+                            @Html.ActionLink("generate a new set of recovery codes", "GenerateRecoveryCodes", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "" })
+                            before you can log in with a recovery code.
+                        </p>
+                    </div>
+                }
+                else if (Model.RecoveryCodesLeft == 1)
+                {
+                    <div class="alert alert-danger">
+                        <strong>You have 1 recovery code left.</strong>
+                        <p>
+                            You can
+                            @Html.ActionLink("generate a new set of recovery codes", "GenerateRecoveryCodes", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "" })
+                        </p>
+                    </div>
+                }
+                else if (Model.RecoveryCodesLeft <= 3)
+                {
+                    <div class="alert alert-warning">
+                        <strong>
+                            You have @Model.RecoveryCodesLeft recovery codes left.
+                        </strong>
+
+                        <p>
+                            You should
+                            @Html.ActionLink("generate a new set of recovery codes", "GenerateRecoveryCodes", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "" })
+                        </p>
+                    </div>
+                }
+
+                @Html.ActionLink("Generate Recovery Codes", "GenerateRecoveryCodes", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "btn btn-primary" })
+
+            </dd>
+        }
+
+
+
+
+
+        @if (Model.IsMachineRemembered)
+        {
+            <dt>Remember Two-Factor:</dt>
+            <dd>
+
+                @using (Html.BeginForm("ForgetBrowser", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <text>[<input type="submit" value="Forget this browser" class="btn btn-primary" />]</text>
+                }
+
+            </dd>
+            @*<form method="post" style="display: inline-block">
+                    <button type="submit" class="btn btn-primary">Forget this browser</button>
+                </form>*@
+        }
+
+
+
+
+        <dt>Configure 2FA app</dt>
+        <dd>
+
+            @if (!Model.HasAuthenticator)
+            {
+                <p>
+                    There are no two-factor authentication providers configured.
+                    See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
+                    for details on setting up this ASP.NET application to support
+                    two-factor authentication.
+                </p>
+
+                @*<a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Add authenticator app</a>*@
+                @Html.ActionLink("Add authenticator app", "EnableAuthenticator", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "btn btn-primary" })
+            }
+            else
+            {
+                @Html.ActionLink("Setup authenticator app", "EnableAuthenticator", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "btn btn-primary" })
+                @*<a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Setup authenticator app</a>*@
+                @Html.ActionLink("Reset authenticator app", "ResetAuthenticator", "Manage", routeValues: new { area = "AccessControl" }, htmlAttributes: new { id = "manageLoginLink", @class = "btn btn-primary" })
+                @*<a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-primary">Reset authenticator app</a>*@
+            }
 
         </dd>
+
+
+
     </dl>
 </div>
